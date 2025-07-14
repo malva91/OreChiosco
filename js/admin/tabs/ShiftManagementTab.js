@@ -22,6 +22,11 @@ export class ShiftManagementTab extends BaseTab {
         await this.loadWeekData();
         this.render();
         this.setupEventListeners();
+        
+        // Setup scroll sync for the shifts calendar
+        setTimeout(() => {
+            this.calendarRenderer.setupScrollSync('shifts-calendar');
+        }, 100);
     }
 
     async loadEmployees() {
@@ -104,7 +109,7 @@ export class ShiftManagementTab extends BaseTab {
                     </div>
                 </div>
                 
-                ${this.calendarRenderer.renderMiniCalendar(this.currentWeekStart, this.employees, this.weekShifts)}
+                ${this.calendarRenderer.renderCalendar(this.currentWeekStart, this.employees, this.weekShifts, 'shifts-calendar')}
             </div>
         `;
     }

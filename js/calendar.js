@@ -2,6 +2,7 @@ import FirebaseAPI from './firebase.js';
 import { DateUtils } from './utils/DateUtils.js';
 import { TimeUtils } from './utils/TimeUtils.js';
 import { MobileMenuManager } from './utils/MobileMenuManager.js';
+import { CalendarRenderer } from './calendar/CalendarRenderer.js';
 
 class CalendarManager {
     constructor() {
@@ -9,6 +10,7 @@ class CalendarManager {
         this.currentWeekStart = DateUtils.getMonday(new Date());
         this.employees = [];
         this.weekShifts = {};
+        this.calendarRenderer = new CalendarRenderer();
         
         if (!this.currentUser) {
             window.location.href = 'index.html';
@@ -152,189 +154,24 @@ class CalendarManager {
     }
 
     renderCalendar() {
-        this.renderHeader();
-        this.renderTimeLabels();
-        this.renderShiftsGrid();
-        this.setupScrollSync();
-    }
-
-    renderHeader() {
-        const employeesHeader = document.getElementById('employees-header');
-        employeesHeader.innerHTML = '';
-        
-        const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
-        
         // Set CSS custom property for employee count
         document.documentElement.style.setProperty('--employees-count', this.employees.length);
         
-        // Per ogni giorno della settimana
-        weekDates.forEach((date, dayIndex) => {
-            const dayContainer = document.createElement('div');
-            dayContainer.className = 'day-container';
+        // Render the calendar using the same renderer
+        const calendarContainer = document.querySelector('.calendar-container');
+        if (calendarContainer) {
+            calendarContainer.outerHTML = this.calendarRenderer.renderCalendar(
+                this.currentWeekStart, 
+                this.employees, 
+                this.weekShifts, 
+                'calendar'
+            );
             
-            // Calculate width based on screen size
-            let cellWidth = 60;
-            if (window.innerWidth <= 480) {
-                cellWidth = 35;
-            } else if (window.innerWidth <= 768) {
-                cellWidth = 45;
-            }
-            
-            const dayWidth = this.employees.length * cellWidth;
-            dayContainer.style.width = `${dayWidth}px`;
-            dayContainer.style.minWidth = `${dayWidth}px`;
-            
-            // Add day separator
-            const separator = document.createElement('div');
-            separator.className = 'day-separator';
-            dayContainer.appendChild(separator);
-            
-            const dayName = DateUtils.getDayName(date);
-            const dayDate = DateUtils.formatShortDate(date);
-            const isToday = DateUtils.isToday(date);
-            
-            // Header del giorno
-            const dayHeader = document.createElement('div');
-            dayHeader.className = `day-title ${isToday ? 'today' : ''}`;
-            dayHeader.innerHTML = `
-                <div class="day-name">${dayName}</div>
-                <div class="day-date">${dayDate}</div>
-            `;
-            dayContainer.appendChild(dayHeader);
-            
-            // Colonne dipendenti per questo giorno
-            const employeesRow = document.createElement('div');
-            employeesRow.className = 'employees-row';
-            
-            this.employees.forEach((employee, empIndex) => {
-                const empHeader = document.createElement('div');
-                empHeader.className = `employee-header emp-color-${(empIndex % 15) + 1}`;
-                empHeader.innerHTML = `<span class="employee-name-vertical">${employee}</span>`;
-                employeesRow.appendChild(empHeader);
-            });
-            
-            dayContainer.appendChild(employeesRow);
-            employeesHeader.appendChild(dayContainer);
-        });
-    }
-
-    renderTimeLabels() {
-        const timeLabels = document.getElementById('time-labels');
-        timeLabels.innerHTML = '';
-        
-        const slots = TimeUtils.generateTimeSlots();
-        
-        slots.forEach(slot => {
-            const timeDiv = document.createElement('div');
-            timeDiv.className = 'time-slot';
-            timeDiv.textContent = slot;
-            timeLabels.appendChild(timeDiv);
-        });
-    }
-
-    renderShiftsGrid() {
-        const shiftsGrid = document.getElementById('shifts-grid');
-        shiftsGrid.innerHTML = '';
-        
-        const slots = TimeUtils.generateTimeSlots();
-        const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
-        
-        // Calculate cell width based on screen size
-        let cellWidth = 60;
-        if (window.innerWidth <= 480) {
-            cellWidth = 35;
-        } else if (window.innerWidth <= 768) {
-            cellWidth = 45;
+            // Setup scroll sync
+            setTimeout(() => {
+                this.calendarRenderer.setupScrollSync('calendar');
+            }, 100);
         }
-        
-        // Per ogni slot orario
-        slots.forEach(slot => {
-            const timeRow = document.createElement('div');
-            timeRow.className = 'time-row';
-            
-            // Per ogni giorno della settimana
-            weekDates.forEach((date, dayIndex) => {
-                const dayContainer = document.createElement('div');
-                dayContainer.className = 'day-slots';
-                
-                // Mantieni la stessa larghezza dell'header
-                const dayWidth = this.employees.length * cellWidth;
-                dayContainer.style.width = `${dayWidth}px`;
-                dayContainer.style.minWidth = `${dayWidth}px`;
-                
-                const dateStr = DateUtils.formatDate(date);
-                const dayShifts = this.weekShifts[dateStr] || {};
-                
-                // Per ogni dipendente
-                this.employees.forEach((employee, empIndex) => {
-                    const slotCell = document.createElement('div');
-                    slotCell.className = 'time-slot-cell';
-                    
-                    const employeeShifts = dayShifts[employee] || [];
-                    let cellContent = '';
-                    let cellClasses = ['time-slot-cell'];
-                    
-                    // Controlla se questo slot è coperto da un turno
-                    employeeShifts.forEach(shift => {
-                        if (TimeUtils.isTimeInRange(slot, shift.start, shift.end)) {
-                            const colorClass = `emp-color-${(empIndex % 15) + 1}`;
-                            
-                            if (shift.type === 'festa') {
-                                cellClasses.push('festa-cell');
-                                cellContent = '🎉';
-                            } else {
-                                cellClasses.push(colorClass);
-                                
-                                // Mostra orario all'inizio e fine turno
-                                if (slot === shift.start) {
-                                    cellContent = slot;
-                                    cellClasses.push('shift-start');
-                                } else if (slot === shift.end || 
-                                          (TimeUtils.timeToMinutes(slot) + 30 > TimeUtils.timeToMinutes(shift.end))) {
-                                    cellContent = shift.end;
-                                    cellClasses.push('shift-end');
-                                } else {
-                                    cellClasses.push('shift-mid');
-                                }
-                            }
-                        }
-                    });
-                    
-                    slotCell.className = cellClasses.join(' ');
-                    slotCell.innerHTML = cellContent;
-                    
-                    dayContainer.appendChild(slotCell);
-                });
-                
-                timeRow.appendChild(dayContainer);
-            });
-            
-            shiftsGrid.appendChild(timeRow);
-        });
-    }
-
-    setupScrollSync() {
-        const header = document.getElementById('calendar-header');
-        const body = document.getElementById('calendar-body');
-        
-        let isHeaderScrolling = false;
-        let isBodyScrolling = false;
-        
-        header.addEventListener('scroll', () => {
-            if (!isBodyScrolling) {
-                isHeaderScrolling = true;
-                body.scrollLeft = header.scrollLeft;
-                setTimeout(() => { isHeaderScrolling = false; }, 10);
-            }
-        });
-        
-        body.addEventListener('scroll', () => {
-            if (!isHeaderScrolling) {
-                isBodyScrolling = true;
-                header.scrollLeft = body.scrollLeft;
-                setTimeout(() => { isBodyScrolling = false; }, 10);
-            }
-        });
     }
 
     showLoading(show) {

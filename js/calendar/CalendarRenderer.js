@@ -2,47 +2,56 @@ import { DateUtils } from '../utils/DateUtils.js';
 import { TimeUtils } from '../utils/TimeUtils.js';
 
 export class CalendarRenderer {
-    renderMiniCalendar(weekStart, employees, weekShifts) {
+    renderCalendar(weekStart, employees, weekShifts, containerId = 'calendar') {
         const weekDates = DateUtils.getWeekDates(weekStart);
         
         return `
-            <div class="mini-calendar-container">
-                <div class="mini-calendar-header">
-                    <div class="mini-time-header">Ore</div>
-                    <div class="mini-employees-header">
-                        ${weekDates.map((date, dayIndex) => this.renderMiniDayHeader(date, dayIndex, employees)).join('')}
+            <div class="calendar-container" id="${containerId}-container">
+                <div class="calendar-header" id="${containerId}-header">
+                    <div class="time-header">Ore</div>
+                    <div class="employees-header" id="${containerId}-employees-header">
+                        ${weekDates.map((date, dayIndex) => this.renderDayHeader(date, dayIndex, employees)).join('')}
                     </div>
                 </div>
                 
-                <div class="mini-calendar-body">
-                    <div class="mini-time-labels">
-                        ${this.renderMiniTimeLabels()}
+                <div class="calendar-body" id="${containerId}-body">
+                    <div class="time-label-column" id="${containerId}-time-labels">
+                        ${this.renderTimeLabels()}
                     </div>
-                    <div class="mini-shifts-grid">
-                        ${this.renderMiniShiftsGrid(weekDates, employees, weekShifts)}
+                    <div class="shifts-grid" id="${containerId}-shifts-grid">
+                        ${this.renderShiftsGrid(weekDates, employees, weekShifts)}
                     </div>
                 </div>
             </div>
         `;
     }
 
-    renderMiniDayHeader(date, dayIndex, employees) {
+    renderDayHeader(date, dayIndex, employees) {
         const dayName = DateUtils.getDayName(date);
         const dayDate = DateUtils.formatShortDate(date);
         const isToday = DateUtils.isToday(date);
-        const dayWidth = employees.length * 40; // Reduced width for mini calendar
+        
+        // Calculate width based on screen size
+        let cellWidth = 60;
+        if (window.innerWidth <= 480) {
+            cellWidth = 35;
+        } else if (window.innerWidth <= 768) {
+            cellWidth = 45;
+        }
+        
+        const dayWidth = employees.length * cellWidth;
         
         return `
-            <div class="mini-day-container" style="width: ${dayWidth}px; min-width: ${dayWidth}px;">
-                <div class="mini-day-separator"></div>
-                <div class="mini-day-title ${isToday ? 'today' : ''}">
-                    <div class="mini-day-name">${dayName}</div>
-                    <div class="mini-day-date">${dayDate}</div>
+            <div class="day-container" style="width: ${dayWidth}px; min-width: ${dayWidth}px;">
+                <div class="day-separator"></div>
+                <div class="day-title ${isToday ? 'today' : ''}">
+                    <div class="day-name">${dayName}</div>
+                    <div class="day-date">${dayDate}</div>
                 </div>
-                <div class="mini-employees-row">
+                <div class="employees-row">
                     ${employees.map((employee, empIndex) => `
-                        <div class="mini-employee-header emp-color-${(empIndex % 4) + 1}">
-                            <span class="mini-employee-name">${employee.substring(0, 3)}</span>
+                        <div class="employee-header emp-color-${(empIndex % 15) + 1}">
+                            <span class="employee-name-vertical">${employee}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -50,37 +59,45 @@ export class CalendarRenderer {
         `;
     }
 
-    renderMiniTimeLabels() {
-        const slots = TimeUtils.generateTimeSlots().filter((_, index) => index % 2 === 0); // Show every other slot
+    renderTimeLabels() {
+        const slots = TimeUtils.generateTimeSlots();
         
         return slots.map(slot => `
-            <div class="mini-time-slot">${slot}</div>
+            <div class="time-slot">${slot}</div>
         `).join('');
     }
 
-    renderMiniShiftsGrid(weekDates, employees, weekShifts) {
-        const slots = TimeUtils.generateTimeSlots().filter((_, index) => index % 2 === 0);
+    renderShiftsGrid(weekDates, employees, weekShifts) {
+        const slots = TimeUtils.generateTimeSlots();
+        
+        // Calculate cell width based on screen size
+        let cellWidth = 60;
+        if (window.innerWidth <= 480) {
+            cellWidth = 35;
+        } else if (window.innerWidth <= 768) {
+            cellWidth = 45;
+        }
         
         return slots.map(slot => `
-            <div class="mini-time-row">
-                ${weekDates.map(date => this.renderMiniDaySlots(date, slot, employees, weekShifts)).join('')}
+            <div class="time-row">
+                ${weekDates.map(date => this.renderDaySlots(date, slot, employees, weekShifts, cellWidth)).join('')}
             </div>
         `).join('');
     }
 
-    renderMiniDaySlots(date, slot, employees, weekShifts) {
+    renderDaySlots(date, slot, employees, weekShifts, cellWidth) {
         const dateStr = DateUtils.formatDate(date);
         const dayShifts = weekShifts[dateStr] || {};
-        const dayWidth = employees.length * 40;
+        const dayWidth = employees.length * cellWidth;
         
         return `
-            <div class="mini-day-slots" style="width: ${dayWidth}px; min-width: ${dayWidth}px;">
-                <div class="mini-day-separator-line"></div>
+            <div class="day-slots" style="width: ${dayWidth}px; min-width: ${dayWidth}px;">
                 ${employees.map((employee, empIndex) => {
                     const employeeShifts = dayShifts[employee] || [];
                     let cellContent = '';
-                    let cellClasses = ['mini-time-slot-cell'];
+                    let cellClasses = ['time-slot-cell'];
                     
+                    // Check if this slot is covered by a shift
                     employeeShifts.forEach(shift => {
                         if (TimeUtils.isTimeInRange(slot, shift.start, shift.end)) {
                             const colorClass = `emp-color-${(empIndex % 15) + 1}`;
@@ -93,10 +110,11 @@ export class CalendarRenderer {
                                 cellClasses.push('employee-hours');
                                 
                                 if (slot === shift.start) {
-                                    cellContent = slot.substring(0, 2);
+                                    cellContent = slot;
                                     cellClasses.push('shift-start');
-                                } else if (TimeUtils.timeToMinutes(slot) + 60 > TimeUtils.timeToMinutes(shift.end)) {
-                                    cellContent = shift.end.substring(0, 2);
+                                } else if (slot === shift.end || 
+                                          (TimeUtils.timeToMinutes(slot) + 30 > TimeUtils.timeToMinutes(shift.end))) {
+                                    cellContent = shift.end;
                                     cellClasses.push('shift-end');
                                 } else {
                                     cellClasses.push('shift-mid');
@@ -105,10 +123,11 @@ export class CalendarRenderer {
                                 cellClasses.push(colorClass);
                                 
                                 if (slot === shift.start) {
-                                    cellContent = slot.substring(0, 2);
+                                    cellContent = slot;
                                     cellClasses.push('shift-start');
-                                } else if (TimeUtils.timeToMinutes(slot) + 60 > TimeUtils.timeToMinutes(shift.end)) {
-                                    cellContent = shift.end.substring(0, 2);
+                                } else if (slot === shift.end || 
+                                          (TimeUtils.timeToMinutes(slot) + 30 > TimeUtils.timeToMinutes(shift.end))) {
+                                    cellContent = shift.end;
                                     cellClasses.push('shift-end');
                                 } else {
                                     cellClasses.push('shift-mid');
@@ -121,5 +140,31 @@ export class CalendarRenderer {
                 }).join('')}
             </div>
         `;
+    }
+
+    setupScrollSync(containerId) {
+        const header = document.getElementById(`${containerId}-header`);
+        const body = document.getElementById(`${containerId}-body`);
+        
+        if (!header || !body) return;
+        
+        let isHeaderScrolling = false;
+        let isBodyScrolling = false;
+        
+        header.addEventListener('scroll', () => {
+            if (!isBodyScrolling) {
+                isHeaderScrolling = true;
+                body.scrollLeft = header.scrollLeft;
+                setTimeout(() => { isHeaderScrolling = false; }, 10);
+            }
+        });
+        
+        body.addEventListener('scroll', () => {
+            if (!isHeaderScrolling) {
+                isBodyScrolling = true;
+                header.scrollLeft = body.scrollLeft;
+                setTimeout(() => { isBodyScrolling = false; }, 10);
+            }
+        });
     }
 }

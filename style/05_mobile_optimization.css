@@ -225,209 +225,6 @@
     margin-bottom: 1rem;
 }
 
-/* Mini Calendar Styles */
-.mini-calendar-container {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    overflow: hidden;
-    font-size: 0.8rem;
-}
-
-.mini-calendar-header {
-    display: flex;
-    background-color: var(--secondary-color);
-    color: white;
-    border-bottom: 1px solid var(--border-color);
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.mini-calendar-header::-webkit-scrollbar {
-    display: none;
-}
-
-.mini-time-header {
-    width: 50px;
-    min-width: 50px;
-    padding: 0.75rem 0.5rem;
-    text-align: center;
-    font-weight: 600;
-    background-color: var(--secondary-color);
-    position: sticky;
-    left: 0;
-    z-index: 10;
-    font-size: 0.75rem;
-}
-
-.mini-employees-header {
-    display: flex;
-    flex: 1;
-    min-width: 0;
-}
-
-.mini-day-container {
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    position: relative;
-}
-
-.mini-day-separator {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background-color: var(--primary-color);
-    z-index: 10;
-}
-
-.mini-day-container:last-child .mini-day-separator {
-    display: none;
-}
-
-.mini-day-title {
-    padding: 0.5rem 0.25rem;
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--secondary-color);
-    font-size: 0.7rem;
-}
-
-.mini-day-title.today {
-    background-color: var(--warning-color);
-    color: var(--body-bg);
-}
-
-.mini-day-name {
-    font-weight: 600;
-    margin-bottom: 0.125rem;
-}
-
-.mini-day-date {
-    font-size: 0.65rem;
-    opacity: 0.8;
-}
-
-.mini-employees-row {
-    display: flex;
-}
-
-.mini-employee-header {
-    width: 40px;
-    min-width: 40px;
-    max-width: 40px;
-    padding: 0.5rem 0.25rem;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.65rem;
-    border-right: 1px solid var(--border-color);
-    color: white;
-}
-
-.mini-employee-header:last-child {
-    border-right: none;
-}
-
-.mini-employee-name {
-    font-size: 0.6rem;
-    font-weight: 600;
-}
-
-.mini-calendar-body {
-    display: flex;
-    max-height: 400px;
-    overflow: auto;
-}
-
-.mini-time-labels {
-    width: 50px;
-    min-width: 50px;
-    background-color: var(--card-bg);
-    border-right: 1px solid var(--border-color);
-    position: sticky;
-    left: 0;
-    z-index: 5;
-}
-
-.mini-time-slot {
-    height: 30px;
-    padding: 0.25rem;
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.65rem;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--card-bg);
-}
-
-.mini-shifts-grid {
-    flex: 1;
-}
-
-.mini-time-row {
-    display: flex;
-    border-bottom: 1px solid var(--border-color);
-    height: 30px;
-}
-
-.mini-day-slots {
-    display: flex;
-    position: relative;
-}
-
-.mini-day-separator-line {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background-color: var(--primary-color);
-    z-index: 5;
-}
-
-.mini-day-slots:last-child .mini-day-separator-line {
-    display: none;
-}
-
-.mini-time-slot-cell {
-    width: 40px;
-    min-width: 40px;
-    max-width: 40px;
-    height: 30px;
-    border-right: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.65rem;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.mini-time-slot-cell:last-child {
-    border-right: none;
-}
-
-/* Mini calendar employee hours styling */
-.mini-time-slot-cell.employee-hours {
-    opacity: 0.7;
-    border: 2px dashed rgba(255, 255, 255, 0.5) !important;
-    position: relative;
-}
-
-.mini-time-slot-cell.employee-hours::after {
-    content: '👤';
-    position: absolute;
-    top: 1px;
-    right: 1px;
-    font-size: 0.5rem;
-    opacity: 0.8;
-}
-
 .calendar-header-section {
     display: flex;
     justify-content: space-between;
@@ -443,49 +240,51 @@
     font-size: 1.1rem;
 }
 
-/* Mobile optimizations for mini calendar */
+/* Mobile optimizations for calendars */
 @media (max-width: 768px) {
-    .mini-calendar-container {
+    .calendar-container {
         font-size: 0.75rem;
+        margin: 0 -0.5rem;
+        border-radius: 0;
     }
     
-    .mini-time-header {
+    .time-header {
         width: 40px;
         min-width: 40px;
         padding: 0.5rem 0.25rem;
         font-size: 0.7rem;
     }
     
-    .mini-employee-header {
-        width: 35px;
-        min-width: 35px;
-        max-width: 35px;
+    .employee-header {
+        width: 45px;
+        min-width: 45px;
+        max-width: 45px;
         padding: 0.25rem 0.125rem;
         font-size: 0.6rem;
     }
     
-    .mini-employee-name {
+    .employee-name-vertical {
         font-size: 0.55rem;
     }
     
-    .mini-time-slot-cell {
-        width: 35px;
-        min-width: 35px;
-        max-width: 35px;
+    .time-slot-cell {
+        width: 45px;
+        min-width: 45px;
+        max-width: 45px;
         height: 25px;
         font-size: 0.6rem;
     }
     
-    .mini-time-slot {
+    .time-slot {
         height: 25px;
         font-size: 0.6rem;
     }
     
-    .mini-time-row {
+    .time-row {
         height: 25px;
     }
     
-    .mini-time-labels {
+    .time-label-column {
         width: 40px;
         min-width: 40px;
     }
@@ -570,9 +369,5 @@
     
     .calendar-container {
         max-height: calc(100vh - 200px);
-    }
-    
-    .mini-calendar-body {
-        max-height: 250px;
     }
 }
