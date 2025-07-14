@@ -246,21 +246,21 @@
 
 /* High Contrast Mode */
 @media (prefers-contrast: high) {
-    .emp-color-1 { background: #000 !important; color: #fff !important; }
+    .emp-color-1 { background: #8B0000 !important; color: #fff !important; }
     .emp-color-2 { background: #000080 !important; color: #fff !important; }
-    .emp-color-3 { background: #008000 !important; color: #fff !important; }
-    .emp-color-4 { background: #800080 !important; color: #fff !important; }
-    .emp-color-5 { background: #8B0000 !important; color: #fff !important; }
-    .emp-color-6 { background: #2F4F4F !important; color: #fff !important; }
-    .emp-color-7 { background: #8B4513 !important; color: #fff !important; }
-    .emp-color-8 { background: #B22222 !important; color: #fff !important; }
-    .emp-color-9 { background: #006400 !important; color: #fff !important; }
-    .emp-color-10 { background: #FF4500 !important; color: #fff !important; }
-    .emp-color-11 { background: #4B0082 !important; color: #fff !important; }
-    .emp-color-12 { background: #556B2F !important; color: #fff !important; }
-    .emp-color-13 { background: #DAA520 !important; color: #000 !important; }
-    .emp-color-14 { background: #008B8B !important; color: #fff !important; }
-    .emp-color-15 { background: #483D8B !important; color: #fff !important; }
+    .emp-color-3 { background: #006400 !important; color: #fff !important; }
+    .emp-color-4 { background: #FF4500 !important; color: #fff !important; }
+    .emp-color-5 { background: #4B0082 !important; color: #fff !important; }
+    .emp-color-6 { background: #008B8B !important; color: #fff !important; }
+    .emp-color-7 { background: #B8860B !important; color: #fff !important; }
+    .emp-color-8 { background: #C71585 !important; color: #fff !important; }
+    .emp-color-9 { background: #1E90FF !important; color: #fff !important; }
+    .emp-color-10 { background: #32CD32 !important; color: #fff !important; }
+    .emp-color-11 { background: #6A5ACD !important; color: #fff !important; }
+    .emp-color-12 { background: #DC143C !important; color: #fff !important; }
+    .emp-color-13 { background: #FF8C00 !important; color: #fff !important; }
+    .emp-color-14 { background: #9932CC !important; color: #fff !important; }
+    .emp-color-15 { background: #20B2AA !important; color: #000 !important; }
     
     .festa-cell {
         background: #ffff00 !important;

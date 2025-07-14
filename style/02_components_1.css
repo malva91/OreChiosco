@@ -232,21 +232,21 @@ body {
 }
 
 /* Employee Colors */
-.emp-color-1 { background-color: #f44336; color: #fff; }
-.emp-color-2 { background-color: #2196f3; color: #fff; }
-.emp-color-3 { background-color: #4caf50; color: #fff; }
-.emp-color-4 { background-color: #ff9800; color: #fff; }
-.emp-color-5 { background-color: #9c27b0; color: #fff; }
-.emp-color-6 { background-color: #607d8b; color: #fff; }
-.emp-color-7 { background-color: #795548; color: #fff; }
-.emp-color-8 { background-color: #e91e63; color: #fff; }
-.emp-color-9 { background-color: #009688; color: #fff; }
-.emp-color-10 { background-color: #ff5722; color: #fff; }
-.emp-color-11 { background-color: #3f51b5; color: #fff; }
-.emp-color-12 { background-color: #8bc34a; color: #fff; }
-.emp-color-13 { background-color: #ffc107; color: #000; }
-.emp-color-14 { background-color: #00bcd4; color: #fff; }
-.emp-color-15 { background-color: #673ab7; color: #fff; }
+.emp-color-1 { background-color: #e53e3e; color: #fff; }  /* Rosso */
+.emp-color-2 { background-color: #3182ce; color: #fff; }  /* Blu */
+.emp-color-3 { background-color: #38a169; color: #fff; }  /* Verde */
+.emp-color-4 { background-color: #dd6b20; color: #fff; }  /* Arancione */
+.emp-color-5 { background-color: #9f7aea; color: #fff; }  /* Viola */
+.emp-color-6 { background-color: #38b2ac; color: #fff; }  /* Teal */
+.emp-color-7 { background-color: #d69e2e; color: #fff; }  /* Giallo scuro */
+.emp-color-8 { background-color: #ed64a6; color: #fff; }  /* Rosa */
+.emp-color-9 { background-color: #4299e1; color: #fff; }  /* Azzurro */
+.emp-color-10 { background-color: #48bb78; color: #fff; } /* Verde chiaro */
+.emp-color-11 { background-color: #667eea; color: #fff; } /* Indaco */
+.emp-color-12 { background-color: #f56565; color: #fff; } /* Rosso chiaro */
+.emp-color-13 { background-color: #ed8936; color: #fff; } /* Arancione scuro */
+.emp-color-14 { background-color: #9f7aea; color: #fff; } /* Viola chiaro */
+.emp-color-15 { background-color: #4fd1c7; color: #000; } /* Teal chiaro */
 
 .festa-cell {
     background-color: #ffe066 !important;

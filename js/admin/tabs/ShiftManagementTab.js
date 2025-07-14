@@ -3,7 +3,6 @@ import FirebaseAPI from '../../firebase.js';
 import { DateUtils } from '../../utils/DateUtils.js';
 import { TimeUtils } from '../../utils/TimeUtils.js';
 import { ValidationUtils } from '../../utils/ValidationUtils.js';
-import { CalendarRenderer } from '../../calendar/CalendarRenderer.js';
 
 export class ShiftManagementTab extends BaseTab {
     constructor() {
@@ -13,7 +12,6 @@ export class ShiftManagementTab extends BaseTab {
         this.employees = [];
         this.shifts = {};
         this.weekShifts = {};
-        this.calendarRenderer = new CalendarRenderer();
     }
 
     async init() {
@@ -80,8 +78,8 @@ export class ShiftManagementTab extends BaseTab {
                         <button id="next-week-shifts" class="btn btn-secondary btn-sm">▶</button>
                     </div>
                 </div>
-                <div id="shifts-calendar-container">
-                    ${this.renderMiniCalendar()}
+                <div class="calendar-container" id="shifts-calendar-container">
+                    ${this.renderFullCalendar()}
                 </div>
             </div>
         `;
@@ -92,8 +90,127 @@ export class ShiftManagementTab extends BaseTab {
         return `${DateUtils.formatShortDate(this.currentWeekStart)} - ${DateUtils.formatShortDate(weekEnd)}`;
     }
 
-    renderMiniCalendar() {
-        return this.calendarRenderer.renderMiniCalendar(this.currentWeekStart, this.employees, this.weekShifts);
+    renderFullCalendar() {
+        return `
+            <div class="calendar-header" id="shifts-calendar-header">
+                <div class="time-header">Ore</div>
+                <div class="employees-header" id="shifts-employees-header">
+                    ${this.renderCalendarHeader()}
+                </div>
+            </div>
+            
+            <div class="calendar-body" id="shifts-calendar-body">
+                <div class="time-label-column" id="shifts-time-labels">
+                    ${this.renderTimeLabels()}
+                </div>
+                <div class="shifts-grid" id="shifts-shifts-grid">
+                    ${this.renderShiftsGrid()}
+                </div>
+            </div>
+        `;
+    }
+
+    renderCalendarHeader() {
+        const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
+        
+        // Calculate cell width based on screen size
+        let cellWidth = 60;
+        if (window.innerWidth <= 480) {
+            cellWidth = 35;
+        } else if (window.innerWidth <= 768) {
+            cellWidth = 45;
+        }
+        
+        return weekDates.map((date, dayIndex) => {
+            const dayWidth = this.employees.length * cellWidth;
+            const dayName = DateUtils.getDayName(date);
+            const dayDate = DateUtils.formatShortDate(date);
+            const isToday = DateUtils.isToday(date);
+            
+            return `
+                <div class="day-container" style="width: ${dayWidth}px; min-width: ${dayWidth}px;">
+                    <div class="day-separator"></div>
+                    <div class="day-title ${isToday ? 'today' : ''}">
+                        <div class="day-name">${dayName}</div>
+                        <div class="day-date">${dayDate}</div>
+                    </div>
+                    <div class="employees-row">
+                        ${this.employees.map((employee, empIndex) => `
+                            <div class="employee-header emp-color-${(empIndex % 15) + 1}">
+                                <span class="employee-name-vertical">${employee}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    renderTimeLabels() {
+        const slots = TimeUtils.generateTimeSlots();
+        
+        return slots.map(slot => `
+            <div class="time-slot">${slot}</div>
+        `).join('');
+    }
+
+    renderShiftsGrid() {
+        const slots = TimeUtils.generateTimeSlots();
+        const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
+        
+        // Calculate cell width based on screen size
+        let cellWidth = 60;
+        if (window.innerWidth <= 480) {
+            cellWidth = 35;
+        } else if (window.innerWidth <= 768) {
+            cellWidth = 45;
+        }
+        
+        return slots.map(slot => `
+            <div class="time-row">
+                ${weekDates.map((date, dayIndex) => {
+                    const dayWidth = this.employees.length * cellWidth;
+                    const dateStr = DateUtils.formatDate(date);
+                    const dayShifts = this.weekShifts[dateStr] || {};
+                    
+                    return `
+                        <div class="day-slots" style="width: ${dayWidth}px; min-width: ${dayWidth}px;">
+                            ${this.employees.map((employee, empIndex) => {
+                                const employeeShifts = dayShifts[employee] || [];
+                                let cellContent = '';
+                                let cellClasses = ['time-slot-cell'];
+                                
+                                employeeShifts.forEach(shift => {
+                                    if (TimeUtils.isTimeInRange(slot, shift.start, shift.end)) {
+                                        const colorClass = `emp-color-${(empIndex % 15) + 1}`;
+                                        
+                                        if (shift.type === 'festa') {
+                                            cellClasses.push('festa-cell');
+                                            cellContent = '🎉';
+                                        } else {
+                                            cellClasses.push(colorClass);
+                                            
+                                            if (slot === shift.start) {
+                                                cellContent = slot;
+                                                cellClasses.push('shift-start');
+                                            } else if (slot === shift.end || 
+                                                      (TimeUtils.timeToMinutes(slot) + 30 > TimeUtils.timeToMinutes(shift.end))) {
+                                                cellContent = shift.end;
+                                                cellClasses.push('shift-end');
+                                            } else {
+                                                cellClasses.push('shift-mid');
+                                            }
+                                        }
+                                    }
+                                });
+                                
+                                return `<div class="${cellClasses.join(' ')}">${cellContent}</div>`;
+                            }).join('')}
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `).join('');
     }
 
     renderShiftsForm() {
@@ -225,7 +342,34 @@ export class ShiftManagementTab extends BaseTab {
     async updateWeekAndReload() {
         document.getElementById('current-week-shifts').textContent = this.getWeekDisplayText();
         await this.loadWeekData();
-        document.getElementById('shifts-calendar-container').innerHTML = this.renderMiniCalendar();
+        document.getElementById('shifts-calendar-container').innerHTML = this.renderFullCalendar();
+        this.setupCalendarScrollSync();
+    }
+
+    setupCalendarScrollSync() {
+        const header = document.getElementById('shifts-calendar-header');
+        const body = document.getElementById('shifts-calendar-body');
+        
+        if (!header || !body) return;
+        
+        let isHeaderScrolling = false;
+        let isBodyScrolling = false;
+        
+        header.addEventListener('scroll', () => {
+            if (!isBodyScrolling) {
+                isHeaderScrolling = true;
+                body.scrollLeft = header.scrollLeft;
+                setTimeout(() => { isHeaderScrolling = false; }, 10);
+            }
+        });
+        
+        body.addEventListener('scroll', () => {
+            if (!isHeaderScrolling) {
+                isBodyScrolling = true;
+                header.scrollLeft = body.scrollLeft;
+                setTimeout(() => { isBodyScrolling = false; }, 10);
+            }
+        });
     }
 
     addShift(employee) {
@@ -269,6 +413,24 @@ export class ShiftManagementTab extends BaseTab {
         this.showLoading(true);
         
         try {
+            const dateStr = DateUtils.formatDate(this.currentDate);
+            
+            // Check if shifts already exist for this date
+            const existingShifts = await FirebaseAPI.getShifts(dateStr);
+            const hasExistingShifts = Object.keys(existingShifts).length > 0;
+            
+            if (hasExistingShifts) {
+                const confirmOverwrite = confirm(
+                    `Esistono già dei turni per il ${DateUtils.formatDisplayDate(this.currentDate)}.\n\n` +
+                    'Vuoi sostituire i turni esistenti con quelli nuovi?'
+                );
+                
+                if (!confirmOverwrite) {
+                    this.showLoading(false);
+                    return;
+                }
+            }
+            
             // Validate all shifts
             for (const employee in this.shifts) {
                 for (const shift of this.shifts[employee]) {
@@ -282,13 +444,13 @@ export class ShiftManagementTab extends BaseTab {
                 }
             }
             
-            const dateStr = DateUtils.formatDate(this.currentDate);
             await FirebaseAPI.saveShifts(dateStr, this.shifts);
             this.showSuccess('Turni salvati con successo');
             
             // Reload week data to update calendar
             await this.loadWeekData();
-            document.getElementById('shifts-calendar-container').innerHTML = this.renderMiniCalendar();
+            document.getElementById('shifts-calendar-container').innerHTML = this.renderFullCalendar();
+            this.setupCalendarScrollSync();
             
         } catch (error) {
             console.error('Error saving shifts:', error);
@@ -303,6 +465,7 @@ export class ShiftManagementTab extends BaseTab {
             this.shifts = {};
             this.render();
             this.setupEventListeners();
+            this.setupCalendarScrollSync();
         }
     }
 }
