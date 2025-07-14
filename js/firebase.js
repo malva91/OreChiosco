@@ -1,4 +1,4 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+import { initializeApp } from 'firebase/app';
 import { 
     getFirestore, 
     collection, 
@@ -12,7 +12,7 @@ import {
     orderBy, 
     where,
     onSnapshot
-} from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+} from 'firebase/firestore';
 
 const firebaseConfig = {
     apiKey: "AIzaSyBYHTG6eir-gtl5m_AGEx6vavxiWhhf_2I",
