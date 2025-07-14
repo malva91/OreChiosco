@@ -267,7 +267,13 @@ export class MonthlyTotalTab extends BaseTab {
     }
 
     printReport() {
-        const printWindow = window.open('', '_blank');
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        
+        if (!printWindow) {
+            this.showError('Impossibile aprire la finestra di stampa. Controlla le impostazioni del browser.');
+            return;
+        }
+        
         const monthText = this.getMonthDisplayText();
         
         printWindow.document.write(`
@@ -310,7 +316,18 @@ export class MonthlyTotalTab extends BaseTab {
         `);
         
         printWindow.document.close();
-        printWindow.print();
+        
+        // Wait for content to load before printing
+        printWindow.onload = function() {
+            printWindow.print();
+        };
+        
+        // Fallback for browsers that don't support onload
+        setTimeout(() => {
+            if (printWindow && !printWindow.closed) {
+                printWindow.print();
+            }
+        }, 500);
     }
 
     renderPrintSummary() {

@@ -88,6 +88,19 @@ export class CalendarRenderer {
                             if (shift.type === 'festa') {
                                 cellClasses.push('festa-cell');
                                 cellContent = '🎉';
+                            } else if (shift.type === 'employee_hours') {
+                                cellClasses.push(colorClass);
+                                cellClasses.push('employee-hours');
+                                
+                                if (slot === shift.start) {
+                                    cellContent = slot.substring(0, 2);
+                                    cellClasses.push('shift-start');
+                                } else if (TimeUtils.timeToMinutes(slot) + 60 > TimeUtils.timeToMinutes(shift.end)) {
+                                    cellContent = shift.end.substring(0, 2);
+                                    cellClasses.push('shift-end');
+                                } else {
+                                    cellClasses.push('shift-mid');
+                                }
                             } else {
                                 cellClasses.push(colorClass);
                                 

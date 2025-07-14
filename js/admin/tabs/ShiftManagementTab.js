@@ -3,18 +3,23 @@ import FirebaseAPI from '../../firebase.js';
 import { DateUtils } from '../../utils/DateUtils.js';
 import { TimeUtils } from '../../utils/TimeUtils.js';
 import { ValidationUtils } from '../../utils/ValidationUtils.js';
+import { CalendarRenderer } from '../../calendar/CalendarRenderer.js';
 
 export class ShiftManagementTab extends BaseTab {
     constructor() {
         super('shifts');
         this.currentDate = new Date();
+        this.currentWeekStart = DateUtils.getMonday(new Date());
         this.employees = [];
         this.shifts = {};
+        this.weekShifts = {};
+        this.calendarRenderer = new CalendarRenderer();
     }
 
     async init() {
         await this.loadEmployees();
         await this.loadShifts();
+        await this.loadWeekData();
         this.render();
         this.setupEventListeners();
     }
@@ -39,6 +44,63 @@ export class ShiftManagementTab extends BaseTab {
         }
     }
 
+    async loadWeekData() {
+        try {
+            const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
+            const startDate = DateUtils.formatDate(weekDates[0]);
+            const endDate = DateUtils.formatDate(weekDates[6]);
+            
+            // Load both admin shifts and employee hours
+            this.weekShifts = await FirebaseAPI.getWeekShifts(startDate, endDate);
+            
+            // Load employee hours for the week
+            const allHours = await FirebaseAPI.getAllHours();
+            
+            // Merge employee hours into week shifts for display
+            weekDates.forEach(date => {
+                const dateStr = DateUtils.formatDate(date);
+                if (!this.weekShifts[dateStr]) {
+                    this.weekShifts[dateStr] = {};
+                }
+                
+                this.employees.forEach(employee => {
+                    const employeeHours = allHours[employee] || {};
+                    const dayData = employeeHours[dateStr];
+                    
+                    if (dayData && !dayData.rest_day) {
+                        const employeeShifts = [];
+                        const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
+                        
+                        shiftNames.forEach(shiftName => {
+                            if (dayData[shiftName]) {
+                                const shift = dayData[shiftName];
+                                employeeShifts.push({
+                                    start: shift.entry,
+                                    end: shift.exit,
+                                    type: 'employee_hours'
+                                });
+                            }
+                        });
+                        
+                        if (employeeShifts.length > 0) {
+                            if (!this.weekShifts[dateStr][employee]) {
+                                this.weekShifts[dateStr][employee] = [];
+                            }
+                            this.weekShifts[dateStr][employee] = [
+                                ...this.weekShifts[dateStr][employee],
+                                ...employeeShifts
+                            ];
+                        }
+                    }
+                });
+            });
+            
+        } catch (error) {
+            console.error('Error loading week data:', error);
+            this.showError('Errore nel caricamento dati settimanali');
+        }
+    }
+
     render() {
         this.container.innerHTML = `
             <div class="tab-header">
@@ -53,7 +115,40 @@ export class ShiftManagementTab extends BaseTab {
             <div class="shifts-form-section">
                 ${this.renderShiftsForm()}
             </div>
+            
+            <div class="shifts-calendar-section">
+                <div class="calendar-header-section">
+                    <h4>📅 Calendario Settimanale</h4>
+                    <div class="week-navigation">
+                        <button id="prev-week-shifts" class="btn btn-secondary">◀ Settimana Precedente</button>
+                        <span id="current-week-shifts">${this.getWeekDisplayText()}</span>
+                        <button id="next-week-shifts" class="btn btn-secondary">Settimana Successiva ▶</button>
+                    </div>
+                </div>
+                
+                <div class="calendar-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #3182ce;"></div>
+                        <span class="legend-text">Turni Admin</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #3182ce; opacity: 0.7; border: 2px dashed #fff;"></div>
+                        <span class="legend-text">Ore Dipendenti 👤</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color festa-cell"></div>
+                        <span class="legend-text">Festa 🎉</span>
+                    </div>
+                </div>
+                
+                ${this.calendarRenderer.renderMiniCalendar(this.currentWeekStart, this.employees, this.weekShifts)}
+            </div>
         `;
+    }
+
+    getWeekDisplayText() {
+        const weekEnd = DateUtils.addDays(this.currentWeekStart, 6);
+        return `${DateUtils.formatShortDate(this.currentWeekStart)} - ${DateUtils.formatShortDate(weekEnd)}`;
     }
 
     renderShiftsForm() {
@@ -132,6 +227,17 @@ export class ShiftManagementTab extends BaseTab {
             this.updateDateAndReload();
         });
 
+        // Week navigation
+        document.getElementById('prev-week-shifts').addEventListener('click', () => {
+            this.currentWeekStart = DateUtils.addDays(this.currentWeekStart, -7);
+            this.updateWeekAndReload();
+        });
+
+        document.getElementById('next-week-shifts').addEventListener('click', () => {
+            this.currentWeekStart = DateUtils.addDays(this.currentWeekStart, 7);
+            this.updateWeekAndReload();
+        });
+
         // Add shift buttons
         document.querySelectorAll('.add-shift-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -175,6 +281,13 @@ export class ShiftManagementTab extends BaseTab {
     async updateDateAndReload() {
         document.getElementById('shift-current-date').textContent = DateUtils.formatDisplayDate(this.currentDate);
         await this.loadShifts();
+        this.render();
+        this.setupEventListeners();
+    }
+
+    async updateWeekAndReload() {
+        document.getElementById('current-week-shifts').textContent = this.getWeekDisplayText();
+        await this.loadWeekData();
         this.render();
         this.setupEventListeners();
     }
@@ -294,6 +407,11 @@ export class ShiftManagementTab extends BaseTab {
             
             await FirebaseAPI.saveShifts(dateStr, cleanedShifts);
             this.showSuccess('Turni salvati con successo');
+            
+            // Reload week data to update calendar
+            await this.loadWeekData();
+            this.render();
+            this.setupEventListeners();
             
         } catch (error) {
             console.error('Error saving shifts:', error);
