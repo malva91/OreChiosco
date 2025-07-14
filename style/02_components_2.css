@@ -534,6 +534,171 @@
     color: var(--text-primary);
 }
 
+/* Employee Color Classes */
+.emp-color-1 { background-color: #e53e3e; color: #fff; }  /* Rosso */
+.emp-color-2 { background-color: #3182ce; color: #fff; }  /* Blu */
+.emp-color-3 { background-color: #38a169; color: #fff; }  /* Verde */
+.emp-color-4 { background-color: #dd6b20; color: #fff; }  /* Arancione */
+.emp-color-5 { background-color: #9f7aea; color: #fff; }  /* Viola */
+.emp-color-6 { background-color: #38b2ac; color: #fff; }  /* Teal */
+.emp-color-7 { background-color: #d69e2e; color: #fff; }  /* Giallo scuro */
+.emp-color-8 { background-color: #ed64a6; color: #fff; }  /* Rosa */
+.emp-color-9 { background-color: #4299e1; color: #fff; }  /* Azzurro */
+.emp-color-10 { background-color: #48bb78; color: #fff; } /* Verde chiaro */
+.emp-color-11 { background-color: #667eea; color: #fff; } /* Indaco */
+.emp-color-12 { background-color: #f56565; color: #fff; } /* Rosso chiaro */
+.emp-color-13 { background-color: #ed8936; color: #fff; } /* Arancione scuro */
+.emp-color-14 { background-color: #9f7aea; color: #fff; } /* Viola chiaro */
+.emp-color-15 { background-color: #4fd1c7; color: #000; } /* Teal chiaro */
+
+.festa-cell {
+    background-color: #ffe066 !important;
+    color: #000 !important;
+    font-weight: bold;
+}
+
+/* Employee Hours vs Admin Shifts Distinction */
+.employee-hours {
+    opacity: 0.7;
+    border: 2px dashed rgba(255, 255, 255, 0.5) !important;
+    position: relative;
+}
+
+.employee-hours::after {
+    content: '👤';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.6rem;
+    opacity: 0.8;
+}
+
+/* Form Status Indicators */
+.form-status {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--border-color);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-indicator::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-empty::before {
+    background-color: var(--secondary-color);
+}
+
+.status-work::before {
+    background-color: var(--success-color);
+}
+
+.status-rest::before {
+    background-color: var(--warning-color);
+}
+
+.status-festa::before {
+    background-color: #ffe066;
+}
+
+.status-text {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.admin-hours-info {
+    background-color: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.info-text {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 0.875rem;
+}
+
+/* Custom Alert/Confirm Styles */
+.custom-alert,
+.custom-confirm {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.alert-content,
+.confirm-content {
+    background-color: var(--card-bg);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.alert-header,
+.confirm-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.alert-icon,
+.confirm-icon {
+    font-size: 1.5rem;
+}
+
+.alert-title,
+.confirm-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.alert-message,
+.confirm-message {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.alert-actions,
+.confirm-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.alert-success .alert-icon { color: var(--success-color); }
+.alert-error .alert-icon { color: var(--danger-color); }
+.alert-warning .alert-icon { color: var(--warning-color); }
+.alert-info .alert-icon { color: var(--primary-color); }
+
+.confirm-danger .confirm-icon { color: var(--danger-color); }
+.confirm-warning .confirm-icon { color: var(--warning-color); }
+.confirm-info .confirm-icon { color: var(--primary-color); }
+
 /* Responsive */
 @media (max-width: 768px) {
     .admin-tabs {

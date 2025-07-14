@@ -487,17 +487,29 @@ export class ShiftManagementTab extends BaseTab {
             const hasExistingShifts = Object.keys(existingShifts).length > 0;
             
             if (hasExistingShifts) {
-                const confirmOverwrite = confirm(
-                    `Esistono già dei turni per il ${DateUtils.formatDisplayDate(this.currentDate)}.\n\n` +
-                    'Vuoi sostituire i turni esistenti con quelli nuovi?'
+                this.showCustomConfirm(
+                    `Esistono già dei turni per il ${DateUtils.formatDisplayDate(this.currentDate)}.<br><br>` +
+                    'Vuoi sostituire i turni esistenti con quelli nuovi?',
+                    async () => {
+                        await this.performSaveShifts(dateStr);
+                    },
+                    'warning'
                 );
-                
-                if (!confirmOverwrite) {
-                    this.showLoading(false);
-                    return;
-                }
+                return;
             }
             
+            await this.performSaveShifts(dateStr);
+            
+        } catch (error) {
+            console.error('Error saving shifts:', error);
+            this.showError('Errore nel salvataggio dei turni');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+    
+    async performSaveShifts(dateStr) {
+        try {
             // Validate all shifts
             for (const employee in this.shifts) {
                 for (const shift of this.shifts[employee]) {
@@ -520,10 +532,7 @@ export class ShiftManagementTab extends BaseTab {
             this.setupCalendarScrollSync();
             
         } catch (error) {
-            console.error('Error saving shifts:', error);
-            this.showError('Errore nel salvataggio dei turni');
-        } finally {
-            this.showLoading(false);
+            throw error;
         }
     }
 

@@ -266,12 +266,40 @@
     color: #fff;
 }
 
+.emp-color-5 { background-color: #9f7aea; color: #fff; }
+.emp-color-6 { background-color: #38b2ac; color: #fff; }
+.emp-color-7 { background-color: #d69e2e; color: #fff; }
+.emp-color-8 { background-color: #ed64a6; color: #fff; }
+.emp-color-9 { background-color: #4299e1; color: #fff; }
+.emp-color-10 { background-color: #48bb78; color: #fff; }
+.emp-color-11 { background-color: #667eea; color: #fff; }
+.emp-color-12 { background-color: #f56565; color: #fff; }
+.emp-color-13 { background-color: #ed8936; color: #fff; }
+.emp-color-14 { background-color: #9f7aea; color: #fff; }
+.emp-color-15 { background-color: #4fd1c7; color: #000; }
+
 .festa-cell {
     background-color: #ffe066 !important;
     color: #000 !important;
     font-weight: bold;
     position: relative;
 }
+/* Employee Hours vs Admin Shifts in Calendar */
+.employee-hours {
+    opacity: 0.7;
+    border: 2px dashed rgba(255, 255, 255, 0.5) !important;
+    position: relative;
+}
+
+.employee-hours::after {
+    content: '👤';
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    font-size: 0.5rem;
+    opacity: 0.8;
+}
+
 
 /* Week Navigation */
 .week-navigation {

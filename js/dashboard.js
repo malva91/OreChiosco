@@ -207,14 +207,70 @@ class DashboardManager {
             // Update history
             await this.loadHoursHistory();
             
-            alert('Ore salvate con successo!');
+            this.showCustomAlert('Ore salvate con successo!', 'success');
             
         } catch (error) {
             console.error('Error saving hours:', error);
-            alert('Errore nel salvataggio delle ore');
+            this.showCustomAlert('Errore nel salvataggio delle ore', 'error');
         } finally {
             this.showLoading(false);
         }
+    }
+    
+    showCustomAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `custom-alert alert-${type}`;
+        
+        const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️'
+        };
+        
+        const titles = {
+            success: 'Successo',
+            error: 'Errore',
+            warning: 'Attenzione',
+            info: 'Informazione'
+        };
+        
+        alertDiv.innerHTML = `
+            <div class="alert-content">
+                <div class="alert-header">
+                    <span class="alert-icon">${icons[type]}</span>
+                    <h3 class="alert-title">${titles[type]}</h3>
+                </div>
+                <div class="alert-message">${message}</div>
+                <div class="alert-actions">
+                    <button class="btn btn-primary alert-ok-btn">OK</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        const okBtn = alertDiv.querySelector('.alert-ok-btn');
+        okBtn.addEventListener('click', () => {
+            document.body.removeChild(alertDiv);
+        });
+        
+        // Close on escape key
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                document.body.removeChild(alertDiv);
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+        
+        // Close on outside click
+        alertDiv.addEventListener('click', (e) => {
+            if (e.target === alertDiv) {
+                document.body.removeChild(alertDiv);
+                document.removeEventListener('keydown', handleEscape);
+            }
+        });
     }
 
     async loadCurrentDayData() {

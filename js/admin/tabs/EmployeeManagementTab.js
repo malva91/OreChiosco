@@ -185,25 +185,27 @@ export class EmployeeManagementTab extends BaseTab {
     }
 
     async deleteEmployee(username) {
-        if (!confirm(`Sei sicuro di voler eliminare il dipendente "${username}"?`)) {
-            return;
-        }
+        this.showCustomConfirm(
+            `Sei sicuro di voler eliminare il dipendente "${username}"?<br><br>Questa azione eliminerà anche tutti i dati associati e non può essere annullata.`,
+            async () => {
+                this.showLoading(true);
 
-        this.showLoading(true);
+                try {
+                    await FirebaseAPI.deleteEmployee(username);
+                    this.showSuccess('Dipendente eliminato con successo');
+                    
+                    await this.loadEmployees();
+                    this.render();
+                    this.setupEventListeners();
 
-        try {
-            await FirebaseAPI.deleteEmployee(username);
-            this.showSuccess('Dipendente eliminato con successo');
-            
-            await this.loadEmployees();
-            this.render();
-            this.setupEventListeners();
-
-        } catch (error) {
-            console.error('Error deleting employee:', error);
-            this.showError('Errore nell\'eliminazione del dipendente');
-        } finally {
-            this.showLoading(false);
-        }
+                } catch (error) {
+                    console.error('Error deleting employee:', error);
+                    this.showError('Errore nell\'eliminazione del dipendente');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+            'danger'
+        );
     }
 }
