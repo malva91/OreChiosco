@@ -154,7 +154,7 @@ class CalendarManager {
             
             this.employees.forEach((employee, empIndex) => {
                 const empHeader = document.createElement('div');
-                empHeader.className = `employee-header emp-color-${(empIndex % 4) + 1}`;
+                empHeader.className = `employee-header emp-color-${(empIndex % 15) + 1}`;
                 empHeader.innerHTML = `<span class="employee-name-vertical">${employee}</span>`;
                 employeesRow.appendChild(empHeader);
             });
@@ -223,7 +223,7 @@ class CalendarManager {
                     // Controlla se questo slot è coperto da un turno
                     employeeShifts.forEach(shift => {
                         if (TimeUtils.isTimeInRange(slot, shift.start, shift.end)) {
-                            const colorClass = `emp-color-${(empIndex % 4) + 1}`;
+                            const colorClass = `emp-color-${(empIndex % 15) + 1}`;
                             
                             if (shift.type === 'festa') {
                                 cellClasses.push('festa-cell');

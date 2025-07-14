@@ -1,6 +1,8 @@
 import { EmployeeManagementTab } from './tabs/EmployeeManagementTab.js';
 import { ShiftManagementTab } from './tabs/ShiftManagementTab.js';
 import { HoursManagementTab } from './tabs/HoursManagementTab.js';
+import { HoursViewTab } from './tabs/HoursViewTab.js';
+import { MonthlyTotalTab } from './tabs/MonthlyTotalTab.js';
 
 export class AdminTabManager {
     constructor() {
@@ -13,8 +15,8 @@ export class AdminTabManager {
         this.tabs.employees = new EmployeeManagementTab();
         this.tabs.shifts = new ShiftManagementTab();
         this.tabs['hours-input'] = new HoursManagementTab();
-        this.tabs['hours-view'] = new HoursManagementTab();
-        this.tabs['monthly-total'] = new HoursManagementTab();
+        this.tabs['hours-view'] = new HoursViewTab();
+        this.tabs['monthly-total'] = new MonthlyTotalTab();
 
         // Initialize current tab
         await this.tabs[this.currentTab].init();

@@ -106,7 +106,7 @@
     display: block;
 }
 
-/* Employee Cards */
+/* Employee Management Cards */
 .employees-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -142,6 +142,64 @@
     margin-top: 1rem;
     display: flex;
     gap: 0.5rem;
+}
+
+/* Employee Shifts Grid */
+.employees-shifts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.employee-shifts-card {
+    border-radius: 0.5rem;
+    padding: 1rem;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.employee-shifts-card .employee-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.employee-shifts-card .employee-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.employee-shifts-card .btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.employee-shifts-card .btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.employee-shifts-card .shift-form {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 0.5rem;
+}
+
+.employee-shifts-card .form-group input,
+.employee-shifts-card .form-group select {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--body-bg);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.employee-shifts-card .form-group label {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
 }
 
 /* Hours History */
@@ -257,6 +315,224 @@
     gap: 1rem;
     flex-wrap: wrap;
 }
+/* Hours View Styles */
+.hours-view-container {
+    margin-top: 1rem;
+}
+
+.employees-hours-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.employee-hours-card {
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.employee-hours-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.employee-hours-header h4 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.monthly-total {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.hours-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.stat-item {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.daily-hours-list {
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+}
+
+.daily-hour-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 0.25rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0.25rem;
+    font-size: 0.85rem;
+}
+
+.daily-hour-item:last-child {
+    margin-bottom: 0;
+}
+
+.daily-hour-item.rest-day {
+    opacity: 0.7;
+    font-style: italic;
+}
+
+.day-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.day-name {
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.day-date {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.day-hours {
+    text-align: right;
+}
+
+.hours-total {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.hours-detail {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.no-data {
+    text-align: center;
+    padding: 1rem;
+    opacity: 0.7;
+    font-style: italic;
+}
+
+/* Monthly Total Styles */
+.monthly-total-container {
+    margin-top: 1rem;
+}
+
+.monthly-summary {
+    margin-bottom: 2rem;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.summary-title {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.monthly-details {
+    margin-bottom: 2rem;
+}
+
+.monthly-details h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+}
+
+.monthly-table-container {
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.monthly-table {
+    min-width: 700px;
+}
+
+.employee-row {
+    color: white;
+}
+
+.employee-row td {
+    font-weight: 500;
+}
+
+.employee-name {
+    font-weight: 600;
+}
+
+.has-overtime {
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.export-section {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+.export-section h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+}
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -266,6 +542,18 @@
     
     .employees-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .employees-shifts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .employees-hours-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
     }
     
     .employee-actions {
@@ -297,5 +585,18 @@
     
     .modal-footer {
         flex-direction: column;
+    }
+    
+    .hours-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .monthly-table {
+        min-width: 600px;
+        font-size: 0.85rem;
     }
 }

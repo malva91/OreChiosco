@@ -67,23 +67,21 @@ export class ShiftManagementTab extends BaseTab {
                 </div>
             </div>
             
-            <div class="shifts-layout">
-                <div class="shifts-form-section">
-                    ${this.renderShiftsForm()}
+            <div class="shifts-form-section">
+                ${this.renderShiftsForm()}
+            </div>
+            
+            <div class="shifts-calendar-section">
+                <div class="calendar-header-section">
+                    <h4>Calendario Settimanale</h4>
+                    <div class="week-navigation">
+                        <button id="prev-week-shifts" class="btn btn-secondary btn-sm">◀</button>
+                        <span id="current-week-shifts">${this.getWeekDisplayText()}</span>
+                        <button id="next-week-shifts" class="btn btn-secondary btn-sm">▶</button>
+                    </div>
                 </div>
-                
-                <div class="shifts-calendar-section">
-                    <div class="calendar-header-section">
-                        <h4>Calendario Settimanale</h4>
-                        <div class="week-navigation">
-                            <button id="prev-week-shifts" class="btn btn-secondary btn-sm">◀</button>
-                            <span id="current-week-shifts">${this.getWeekDisplayText()}</span>
-                            <button id="next-week-shifts" class="btn btn-secondary btn-sm">▶</button>
-                        </div>
-                    </div>
-                    <div id="shifts-calendar-container">
-                        ${this.renderMiniCalendar()}
-                    </div>
+                <div id="shifts-calendar-container">
+                    ${this.renderMiniCalendar()}
                 </div>
             </div>
         `;
@@ -102,8 +100,8 @@ export class ShiftManagementTab extends BaseTab {
         return `
             <div class="shifts-form">
                 <h4>Assegnazione Turni</h4>
-                <div class="employees-shifts">
-                    ${this.employees.map(employee => this.renderEmployeeShifts(employee)).join('')}
+                <div class="employees-shifts-grid">
+                    ${this.employees.map((employee, index) => this.renderEmployeeShifts(employee, index)).join('')}
                 </div>
                 <div class="form-actions">
                     <button id="save-shifts-btn" class="btn btn-success">Salva Turni</button>
@@ -113,11 +111,12 @@ export class ShiftManagementTab extends BaseTab {
         `;
     }
 
-    renderEmployeeShifts(employee) {
+    renderEmployeeShifts(employee, index) {
         const employeeShifts = this.shifts[employee] || [];
+        const colorClass = `emp-color-${(index % 15) + 1}`;
         
         return `
-            <div class="employee-shifts-card">
+            <div class="employee-shifts-card ${colorClass}">
                 <div class="employee-header">
                     <h5>${employee}</h5>
                     <button class="btn btn-primary btn-sm add-shift-btn" data-employee="${employee}">+ Turno</button>

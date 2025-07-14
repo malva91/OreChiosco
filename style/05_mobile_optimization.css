@@ -216,30 +216,13 @@
     }
 }
 
-/* Shifts Layout for Mobile */
-@media (max-width: 1024px) {
-    .shifts-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-    
-    .shifts-form-section {
-        order: 1;
-    }
-    
-    .shifts-calendar-section {
-        order: 2;
-    }
+/* Shifts Layout - Always stacked */
+.shifts-form-section {
+    margin-bottom: 2rem;
 }
 
-@media (min-width: 1025px) {
-    .shifts-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        align-items: start;
-    }
+.shifts-calendar-section {
+    margin-bottom: 1rem;
 }
 
 /* Mini Calendar Styles */
@@ -503,6 +486,19 @@
     
     .week-navigation {
         justify-content: center;
+    }
+    
+    .employees-shifts-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .employee-shifts-card {
+        padding: 0.75rem;
+    }
+    
+    .employee-shifts-card .employee-header h5 {
+        font-size: 1rem;
     }
 }
 

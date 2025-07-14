@@ -83,7 +83,7 @@ export class CalendarRenderer {
                     
                     employeeShifts.forEach(shift => {
                         if (TimeUtils.isTimeInRange(slot, shift.start, shift.end)) {
-                            const colorClass = `emp-color-${(empIndex % 4) + 1}`;
+                            const colorClass = `emp-color-${(empIndex % 15) + 1}`;
                             
                             if (shift.type === 'festa') {
                                 cellClasses.push('festa-cell');
