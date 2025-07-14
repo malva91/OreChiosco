@@ -122,14 +122,9 @@ export class CalendarRenderer {
             return `<td class="${cellClasses.join(' ')}">${SecurityUtils.sanitizeHTML(cellContent)}</td>`;
         }).join('');
     }
-        `;
-    }
-
-
-
 
     setupScrollSync(containerId) {
-        const table = document.getElementById(`${containerId}-container`);
+        const table = document.getElementById(\`${containerId}-container`);
         const header = table?.querySelector('thead');
         const body = table?.querySelector('tbody');
         
