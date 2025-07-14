@@ -23,6 +23,9 @@ export class ShiftManagementTab extends BaseTab {
         this.render();
         this.setupEventListeners();
         
+        // Render the calendar with proper layout
+        this.renderShiftsCalendar();
+        
         // Setup scroll sync for the shifts calendar
         setTimeout(() => {
             this.calendarRenderer.setupScrollSync('shifts-calendar');
@@ -112,7 +115,9 @@ export class ShiftManagementTab extends BaseTab {
                 </div>
                 
                 <div class="shifts-calendar-wrapper">
-                    ${this.calendarRenderer.renderCalendar(this.currentWeekStart, this.employees, this.weekShifts, 'shifts-calendar')}
+                    <div id="shifts-calendar-container">
+                        <!-- Calendar will be rendered here -->
+                    </div>
                 </div>
             </div>
         `;
@@ -266,8 +271,12 @@ export class ShiftManagementTab extends BaseTab {
     async updateWeekAndReload() {
         document.getElementById('current-week-shifts').textContent = this.getWeekDisplayText();
         await this.loadWeekData();
-        this.render();
-        this.setupEventListeners();
+        this.renderShiftsCalendar();
+        
+        // Setup scroll sync again
+        setTimeout(() => {
+            this.calendarRenderer.setupScrollSync('shifts-calendar');
+        }, 100);
     }
 
     addShift(employee) {
@@ -388,8 +397,12 @@ export class ShiftManagementTab extends BaseTab {
             
             // Reload week data to update calendar
             await this.loadWeekData();
-            this.render();
-            this.setupEventListeners();
+            this.renderShiftsCalendar();
+            
+            // Setup scroll sync again
+            setTimeout(() => {
+                this.calendarRenderer.setupScrollSync('shifts-calendar');
+            }, 100);
             
         } catch (error) {
             console.error('Error saving shifts:', error);
@@ -437,5 +450,21 @@ export class ShiftManagementTab extends BaseTab {
         });
         
         return totalMinutes;
+    }
+
+    renderShiftsCalendar() {
+        // Set CSS custom property for employee count
+        document.documentElement.style.setProperty('--employees-count', this.employees.length);
+        
+        // Get the container and render the calendar
+        const calendarContainer = document.getElementById('shifts-calendar-container');
+        if (calendarContainer) {
+            calendarContainer.innerHTML = this.calendarRenderer.renderCalendar(
+                this.currentWeekStart, 
+                this.employees, 
+                this.weekShifts, 
+                'shifts-calendar'
+            );
+        }
     }
 }
