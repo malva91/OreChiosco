@@ -28,7 +28,7 @@ export class ShiftManagementTab extends BaseTab {
         
         // Setup scroll sync for the shifts calendar
         setTimeout(() => {
-            this.calendarRenderer.setupScrollSync('calendar');
+            this.calendarRenderer.setupScrollSync('shifts-calendar');
         }, 100);
     }
 
@@ -87,6 +87,28 @@ export class ShiftManagementTab extends BaseTab {
             
             <div class="shifts-form-section">
                 ${this.renderShiftsForm()}
+            </div>
+            
+            <div class="shifts-calendar-section">
+                <div class="calendar-header-section">
+                    <h4>Calendario Turni</h4>
+                    <div class="week-navigation">
+                        <button id="prev-week-shifts" class="btn btn-secondary">◀ Settimana Precedente</button>
+                        <span id="current-week-shifts">${this.getWeekDisplayText()}</span>
+                        <button id="next-week-shifts" class="btn btn-secondary">Settimana Successiva ▶</button>
+                    </div>
+                </div>
+                
+                <div class="calendar-legend">
+                    <div class="legend-item">
+                        <div class="legend-color admin-shift-legend" style="background-color: #3182ce;"></div>
+                        <span class="legend-text">Turni Admin</span>
+                    </div>
+                </div>
+                
+                <div id="shifts-calendar-container">
+                    <!-- Calendar will be rendered here -->
+                </div>
             </div>
         `;
     }
@@ -210,6 +232,17 @@ export class ShiftManagementTab extends BaseTab {
 
         document.getElementById('copy-yesterday-btn').addEventListener('click', () => {
             this.copyFromYesterday();
+        });
+
+        // Week navigation for calendar
+        document.getElementById('prev-week-shifts').addEventListener('click', () => {
+            this.currentWeekStart = DateUtils.addDays(this.currentWeekStart, -7);
+            this.updateWeekAndReload();
+        });
+
+        document.getElementById('next-week-shifts').addEventListener('click', () => {
+            this.currentWeekStart = DateUtils.addDays(this.currentWeekStart, 7);
+            this.updateWeekAndReload();
         });
     }
 
@@ -382,5 +415,37 @@ export class ShiftManagementTab extends BaseTab {
         });
         
         return totalMinutes;
+    }
+
+    getWeekDisplayText() {
+        const weekEnd = DateUtils.addDays(this.currentWeekStart, 6);
+        return `${DateUtils.formatShortDate(this.currentWeekStart)} - ${DateUtils.formatShortDate(weekEnd)}`;
+    }
+
+    async updateWeekAndReload() {
+        document.getElementById('current-week-shifts').textContent = this.getWeekDisplayText();
+        await this.loadWeekData();
+        this.renderShiftsCalendar();
+    }
+
+    renderShiftsCalendar() {
+        // Set CSS custom property for employee count
+        document.documentElement.style.setProperty('--employees-count', this.employees.length);
+        
+        // Render the calendar using the same renderer
+        const calendarContainer = document.getElementById('shifts-calendar-container');
+        if (calendarContainer) {
+            calendarContainer.outerHTML = this.calendarRenderer.renderCalendar(
+                this.currentWeekStart, 
+                this.employees, 
+                this.weekShifts, 
+                'shifts-calendar'
+            );
+            
+            // Setup scroll sync
+            setTimeout(() => {
+                this.calendarRenderer.setupScrollSync('shifts-calendar');
+            }, 100);
+        }
     }
 }

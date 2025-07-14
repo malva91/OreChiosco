@@ -750,16 +750,20 @@
     justify-content: center;
     align-items: center;
     z-index: 2000;
+    padding: 1rem;
 }
 
 .alert-content,
 .confirm-content {
     background-color: var(--card-bg);
     border-radius: 0.5rem;
-    padding: 1.5rem;
+    padding: 2rem;
     max-width: 400px;
     width: 90%;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .alert-header,
@@ -768,11 +772,14 @@
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .alert-icon,
 .confirm-icon {
     font-size: 1.5rem;
+    flex-shrink: 0;
 }
 
 .alert-title,
@@ -788,6 +795,7 @@
     color: var(--text-secondary);
     margin-bottom: 1.5rem;
     line-height: 1.5;
+    word-wrap: break-word;
 }
 
 .alert-actions,
@@ -795,6 +803,8 @@
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
 }
 
 .alert-success .alert-icon { color: var(--success-color); }
