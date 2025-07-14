@@ -516,6 +516,14 @@
     .employee-shifts-card .employee-header h5 {
         font-size: 1rem;
     }
+    
+    .employee-shifts-card .employee-info {
+        gap: 0.125rem;
+    }
+    
+    .employee-shifts-card .weekly-hours {
+        font-size: 0.75rem;
+    }
 }
 
 /* Touch improvements */

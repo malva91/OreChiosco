@@ -56,44 +56,7 @@ export class ShiftManagementTab extends BaseTab {
             // Load employee hours for the week
             const allHours = await FirebaseAPI.getAllHours();
             
-            // Merge employee hours into week shifts for display
-            weekDates.forEach(date => {
-                const dateStr = DateUtils.formatDate(date);
-                if (!this.weekShifts[dateStr]) {
-                    this.weekShifts[dateStr] = {};
-                }
-                
-                this.employees.forEach(employee => {
-                    const employeeHours = allHours[employee] || {};
-                    const dayData = employeeHours[dateStr];
-                    
-                    if (dayData && !dayData.rest_day) {
-                        const employeeShifts = [];
-                        const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
-                        
-                        shiftNames.forEach(shiftName => {
-                            if (dayData[shiftName]) {
-                                const shift = dayData[shiftName];
-                                employeeShifts.push({
-                                    start: shift.entry,
-                                    end: shift.exit,
-                                    type: 'employee_hours'
-                                });
-                            }
-                        });
-                        
-                        if (employeeShifts.length > 0) {
-                            if (!this.weekShifts[dateStr][employee]) {
-                                this.weekShifts[dateStr][employee] = [];
-                            }
-                            this.weekShifts[dateStr][employee] = [
-                                ...this.weekShifts[dateStr][employee],
-                                ...employeeShifts
-                            ];
-                        }
-                    }
-                });
-            });
+            // Non caricare le ore dipendenti nel calendario turni
             
         } catch (error) {
             console.error('Error loading week data:', error);
@@ -169,12 +132,16 @@ export class ShiftManagementTab extends BaseTab {
 
     renderEmployeeShifts(employee, index) {
         const employeeShifts = this.shifts[employee] || [];
+        const weeklyHours = this.calculateWeeklyHours(employee);
         const colorClass = `emp-color-${(index % 15) + 1}`;
         
         return `
             <div class="employee-shifts-card ${colorClass}">
                 <div class="employee-header">
-                    <h5>${employee}</h5>
+                    <div class="employee-info">
+                        <h5>${employee}</h5>
+                        <div class="weekly-hours">Ore settimana: ${TimeUtils.formatDuration(weeklyHours)}</div>
+                    </div>
                     <button class="btn btn-primary btn-sm add-shift-btn" data-employee="${employee}">+ Turno</button>
                 </div>
                 <div class="shifts-list" id="shifts-${employee}">
@@ -441,5 +408,23 @@ export class ShiftManagementTab extends BaseTab {
             },
             'danger'
         );
+    }
+
+    calculateWeeklyHours(employee) {
+        let totalMinutes = 0;
+        const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
+        
+        weekDates.forEach(date => {
+            const dateStr = DateUtils.formatDate(date);
+            const dayShifts = this.weekShifts[dateStr] && this.weekShifts[dateStr][employee] || [];
+            
+            dayShifts.forEach(shift => {
+                if (shift.start && shift.end && shift.type !== 'festa') {
+                    totalMinutes += TimeUtils.calculateDuration(shift.start, shift.end);
+                }
+            });
+        });
+        
+        return totalMinutes;
     }
 }

@@ -87,7 +87,61 @@ class CalendarManager {
             const startDate = DateUtils.formatDate(weekDates[0]);
             const endDate = DateUtils.formatDate(weekDates[6]);
             
+            // Carica solo i turni admin, non le ore dipendenti
             this.weekShifts = await FirebaseAPI.getWeekShifts(startDate, endDate);
+            
+            // Carica anche le ore dipendenti per il calendario principale
+            const allHours = await FirebaseAPI.getAllHours();
+            
+            // Merge employee hours into week shifts for display
+            weekDates.forEach(date => {
+                const dateStr = DateUtils.formatDate(date);
+                if (!this.weekShifts[dateStr]) {
+                    this.weekShifts[dateStr] = {};
+                }
+                
+                this.employees.forEach(employee => {
+                    const employeeHours = allHours[employee] || {};
+                    const dayData = employeeHours[dateStr];
+                    
+                    if (dayData && !dayData.rest_day && !dayData.festa) {
+                        const employeeShifts = [];
+                        const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
+                        
+                        shiftNames.forEach(shiftName => {
+                            if (dayData[shiftName]) {
+                                const shift = dayData[shiftName];
+                                employeeShifts.push({
+                                    start: shift.entry,
+                                    end: shift.exit,
+                                    type: 'employee_hours'
+                                });
+                            }
+                        });
+                        
+                        if (employeeShifts.length > 0) {
+                            if (!this.weekShifts[dateStr][employee]) {
+                                this.weekShifts[dateStr][employee] = [];
+                            }
+                            this.weekShifts[dateStr][employee] = [
+                                ...this.weekShifts[dateStr][employee],
+                                ...employeeShifts
+                            ];
+                        }
+                    } else if (dayData && dayData.festa) {
+                        // Aggiungi festa
+                        if (!this.weekShifts[dateStr][employee]) {
+                            this.weekShifts[dateStr][employee] = [];
+                        }
+                        this.weekShifts[dateStr][employee].push({
+                            start: '08:00',
+                            end: '20:00',
+                            type: 'festa'
+                        });
+                    }
+                });
+            });
+            
             this.renderCalendar();
             
         } catch (error) {
