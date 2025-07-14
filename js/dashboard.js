@@ -3,6 +3,8 @@ import { DateUtils } from './utils/DateUtils.js';
 import { TimeUtils } from './utils/TimeUtils.js';
 import { ValidationUtils } from './utils/ValidationUtils.js';
 import { MobileMenuManager } from './utils/MobileMenuManager.js';
+import { ErrorHandler } from './utils/ErrorHandler.js';
+import { SecurityUtils } from './utils/SecurityUtils.js';
 
 class DashboardManager {
     constructor() {
@@ -72,7 +74,9 @@ class DashboardManager {
         // Checkboxes
         document.getElementById('rest-day-checkbox').addEventListener('change', (e) => {
             const shiftsContainer = document.getElementById('shifts-container');
-            shiftsContainer.style.display = e.target.checked ? 'none' : 'block';
+            if (shiftsContainer) {
+                shiftsContainer.style.display = e.target.checked ? 'none' : 'block';
+            }
         });
 
         // Logout
@@ -83,7 +87,15 @@ class DashboardManager {
     }
 
     updateDateDisplay() {
-        document.getElementById('current-date').textContent = DateUtils.formatDisplayDate(this.currentDate);
+        const dateElement = document.getElementById('current-date');
+        if (dateElement) {
+            try {
+                dateElement.textContent = DateUtils.formatDisplayDate(this.currentDate);
+            } catch (error) {
+                ErrorHandler.logError(error, 'DashboardManager.updateDateDisplay');
+                dateElement.textContent = 'Data non valida';
+            }
+        }
     }
 
     addInitialShift() {
@@ -184,20 +196,20 @@ class DashboardManager {
                     if (shift.entry && shift.exit) {
                         const errors = ValidationUtils.validateTimeInput(shift.entry, shift.exit);
                         if (errors.length > 0) {
-                            alert('Errori nel turno ' + (i + 1) + ':\n' + errors.join('\n'));
+                            ErrorHandler.showError('Errori nel turno ' + (i + 1) + ':\n' + errors.join('\n'));
                             return;
                         }
                         
                         hoursData[shiftNames[i]] = {
-                            entry: shift.entry,
-                            exit: shift.exit
+                            entry: SecurityUtils.sanitizeInput(shift.entry),
+                            exit: SecurityUtils.sanitizeInput(shift.exit)
                         };
                         hasValidShifts = true;
                     }
                 }
 
                 if (!hasValidShifts) {
-                    alert('Inserire almeno un turno valido');
+                    ErrorHandler.showError('Inserire almeno un turno valido');
                     return;
                 }
             }
@@ -207,71 +219,16 @@ class DashboardManager {
             // Update history
             await this.loadHoursHistory();
             
-            this.showCustomAlert('Ore salvate con successo!', 'success');
+            ErrorHandler.showSuccess('Ore salvate con successo!');
             
         } catch (error) {
-            console.error('Error saving hours:', error);
-            this.showCustomAlert('Errore nel salvataggio delle ore', 'error');
+            ErrorHandler.logError(error, 'DashboardManager.saveHours');
+            ErrorHandler.showError('Errore nel salvataggio delle ore');
         } finally {
             this.showLoading(false);
         }
     }
     
-    showCustomAlert(message, type = 'info') {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `custom-alert alert-${type}`;
-        
-        const icons = {
-            success: '✅',
-            error: '❌',
-            warning: '⚠️',
-            info: 'ℹ️'
-        };
-        
-        const titles = {
-            success: 'Successo',
-            error: 'Errore',
-            warning: 'Attenzione',
-            info: 'Informazione'
-        };
-        
-        alertDiv.innerHTML = `
-            <div class="alert-content">
-                <div class="alert-header">
-                    <span class="alert-icon">${icons[type]}</span>
-                    <h3 class="alert-title">${titles[type]}</h3>
-                </div>
-                <div class="alert-message">${message}</div>
-                <div class="alert-actions">
-                    <button class="btn btn-primary alert-ok-btn">OK</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(alertDiv);
-        
-        const okBtn = alertDiv.querySelector('.alert-ok-btn');
-        okBtn.addEventListener('click', () => {
-            document.body.removeChild(alertDiv);
-        });
-        
-        // Close on escape key
-        const handleEscape = (e) => {
-            if (e.key === 'Escape') {
-                document.body.removeChild(alertDiv);
-                document.removeEventListener('keydown', handleEscape);
-            }
-        };
-        document.addEventListener('keydown', handleEscape);
-        
-        // Close on outside click
-        alertDiv.addEventListener('click', (e) => {
-            if (e.target === alertDiv) {
-                document.body.removeChild(alertDiv);
-                document.removeEventListener('keydown', handleEscape);
-            }
-        });
-    }
 
     async loadCurrentDayData() {
         this.showLoading(true);
@@ -283,7 +240,10 @@ class DashboardManager {
             
             if (dayData) {
                 // Set rest day checkbox
-                document.getElementById('rest-day-checkbox').checked = dayData.rest_day || false;
+                const restDayCheckbox = document.getElementById('rest-day-checkbox');
+                if (restDayCheckbox) {
+                    restDayCheckbox.checked = dayData.rest_day || false;
+                }
                 
                 // Load shifts
                 this.shifts = [];
@@ -305,14 +265,17 @@ class DashboardManager {
                 }
             } else {
                 // Reset form
-                document.getElementById('rest-day-checkbox').checked = false;
+                const restDayCheckbox = document.getElementById('rest-day-checkbox');
+                if (restDayCheckbox) {
+                    restDayCheckbox.checked = false;
+                }
                 this.addInitialShift();
             }
             
             await this.loadHoursHistory();
             
         } catch (error) {
-            console.error('Error loading day data:', error);
+            ErrorHandler.logError(error, 'DashboardManager.loadCurrentDayData');
         } finally {
             this.showLoading(false);
         }
@@ -323,11 +286,16 @@ class DashboardManager {
             const hoursData = await FirebaseAPI.getEmployeeHours(this.currentUser.username);
             const historyContainer = document.getElementById('hours-history');
             
+            if (!historyContainer) return;
+            
             historyContainer.innerHTML = '';
             
             if (Object.keys(hoursData).length === 0) {
                 historyContainer.innerHTML = '<p>Nessun dato disponibile</p>';
-                document.getElementById('total-hours').textContent = '0h 0m';
+                const totalElement = document.getElementById('total-hours');
+                if (totalElement) {
+                    totalElement.textContent = '0h 0m';
+                }
                 return;
             }
             
@@ -358,7 +326,7 @@ class DashboardManager {
                             
                             shiftsHtml += `
                                 <div class="shift-info">
-                                    <strong>Turno ${index + 1}:</strong> ${shift.entry} - ${shift.exit} (${TimeUtils.formatDuration(duration)})
+                                    <strong>Turno ${index + 1}:</strong> ${SecurityUtils.sanitizeHTML(shift.entry)} - ${SecurityUtils.sanitizeHTML(shift.exit)} (${TimeUtils.formatDuration(duration)})
                                 </div>
                             `;
                         }
@@ -369,7 +337,7 @@ class DashboardManager {
                 
                 dayDiv.innerHTML = `
                     <div class="day-header">
-                        <span class="day-date">${DateUtils.formatShortDate(date)}</span>
+                        <span class="day-date">${SecurityUtils.sanitizeHTML(DateUtils.formatShortDate(date))}</span>
                         <span class="day-total">${TimeUtils.formatDuration(dayMinutes)}</span>
                     </div>
                     <div class="day-shifts">${shiftsHtml}</div>
@@ -378,18 +346,26 @@ class DashboardManager {
                 historyContainer.appendChild(dayDiv);
             });
             
-            document.getElementById('total-hours').textContent = TimeUtils.formatDuration(totalMinutes);
+            const totalElement = document.getElementById('total-hours');
+            if (totalElement) {
+                totalElement.textContent = TimeUtils.formatDuration(totalMinutes);
+            }
             
         } catch (error) {
-            console.error('Error loading hours history:', error);
+            ErrorHandler.logError(error, 'DashboardManager.loadHoursHistory');
         }
     }
 
     showLoading(show) {
         const overlay = document.getElementById('loading-overlay');
-        overlay.style.display = show ? 'flex' : 'none';
+        if (overlay) {
+            overlay.style.display = show ? 'flex' : 'none';
+        }
     }
 }
 
 // Make dashboard available globally for event handlers
-window.dashboard = new DashboardManager();
+const dashboardManager = new DashboardManager();
+
+// Export for global access if needed
+window.dashboard = dashboardManager;

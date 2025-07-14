@@ -3,6 +3,8 @@ import FirebaseAPI from '../../firebase.js';
 import { DateUtils } from '../../utils/DateUtils.js';
 import { TimeUtils } from '../../utils/TimeUtils.js';
 import { ValidationUtils } from '../../utils/ValidationUtils.js';
+import { ErrorHandler } from '../../utils/ErrorHandler.js';
+import { SecurityUtils } from '../../utils/SecurityUtils.js';
 import { CalendarRenderer } from '../../calendar/CalendarRenderer.js';
 
 export class ShiftManagementTab extends BaseTab {
@@ -40,7 +42,8 @@ export class ShiftManagementTab extends BaseTab {
                 .map(([username, data]) => ({ username, ...data }));
         } catch (error) {
             console.error('Error loading employees:', error);
-            this.showError('Errore nel caricamento dipendenti');
+            ErrorHandler.logError(error, 'ShiftManagementTab.loadEmployees');
+            ErrorHandler.showError('Errore nel caricamento dipendenti');
         }
     }
 
@@ -50,7 +53,8 @@ export class ShiftManagementTab extends BaseTab {
             this.shifts = await FirebaseAPI.getShifts(dateStr);
         } catch (error) {
             console.error('Error loading shifts:', error);
-            this.showError('Errore nel caricamento turni');
+            ErrorHandler.logError(error, 'ShiftManagementTab.loadShifts');
+            ErrorHandler.showError('Errore nel caricamento turni');
         }
     }
 
@@ -70,7 +74,8 @@ export class ShiftManagementTab extends BaseTab {
             
         } catch (error) {
             console.error('Error loading week data:', error);
-            this.showError('Errore nel caricamento dati settimanali');
+            ErrorHandler.logError(error, 'ShiftManagementTab.loadWeekData');
+            ErrorHandler.showError('Errore nel caricamento dati settimanali');
         }
     }
 
@@ -80,7 +85,7 @@ export class ShiftManagementTab extends BaseTab {
                 <h3>Gestione Turni</h3>
                 <div class="date-navigation">
                     <button id="prev-shift-date" class="btn btn-secondary">◀</button>
-                    <span id="shift-current-date">${DateUtils.formatDisplayDate(this.currentDate)}</span>
+                    <span id="shift-current-date">${this.formatCurrentDate()}</span>
                     <button id="next-shift-date" class="btn btn-secondary">▶</button>
                 </div>
             </div>
@@ -113,10 +118,18 @@ export class ShiftManagementTab extends BaseTab {
         `;
     }
 
+    formatCurrentDate() {
+        try {
+            return DateUtils.formatDisplayDate(this.currentDate);
+        } catch (error) {
+            ErrorHandler.logError(error, 'ShiftManagementTab.formatCurrentDate');
+            return 'Data non valida';
+        }
+    }
     renderShiftsForm() {
         return `
             <div class="shifts-form">
-                <h4>Assegnazione Turni per ${DateUtils.formatDisplayDate(this.currentDate)}</h4>
+                <h4>Assegnazione Turni per ${this.formatCurrentDate()}</h4>
                 <div class="employees-shifts-grid">
                     ${this.employees.map((employee, index) => this.renderEmployeeShifts(employee, index)).join('')}
                 </div>
@@ -130,9 +143,12 @@ export class ShiftManagementTab extends BaseTab {
     }
 
     renderEmployeeShifts(employee, index) {
-        const employeeShifts = this.shifts[employee] || [];
+        const employeeName = typeof employee === 'object' ? employee.username : employee;
+        const employeeShifts = this.shifts[employeeName] || [];
         const weeklyHours = this.calculateWeeklyHours(employee);
-        const employeeData = Object.values(this.employees).find(emp => emp.username === employee);
+        const employeeData = this.employees.find(emp => 
+            (typeof emp === 'object' ? emp.username : emp) === employeeName
+        );
         const colorIndex = employeeData?.colorIndex || (index % 15) + 1;
         const colorClass = `emp-color-${colorIndex}`;
         
@@ -140,15 +156,15 @@ export class ShiftManagementTab extends BaseTab {
             <div class="employee-shifts-card ${colorClass}">
                 <div class="employee-header">
                     <div class="employee-info">
-                        <h5>${employee}</h5>
+                        <h5>${SecurityUtils.sanitizeHTML(employeeName)}</h5>
                         <div class="weekly-hours">Ore settimana: ${TimeUtils.formatDuration(weeklyHours)}</div>
                     </div>
-                    <button class="btn btn-primary btn-sm add-shift-btn" data-employee="${employee}">+ Turno</button>
+                    <button class="btn btn-primary btn-sm add-shift-btn" data-employee="${employeeName}">+ Turno</button>
                 </div>
                 <div class="shifts-list" id="shifts-${employee}">
                     ${employeeShifts.length > 0 ? 
-                        employeeShifts.map((shift, index) => this.renderShiftForm(employee, shift, index)).join('') :
-                        this.renderShiftForm(employee, { start: '', end: '', type: 'default' }, 0)
+                        employeeShifts.map((shift, index) => this.renderShiftForm(employeeName, shift, index)).join('') :
+                        this.renderShiftForm(employeeName, { start: '', end: '', type: 'default' }, 0)
                     }
                 </div>
             </div>
@@ -247,7 +263,10 @@ export class ShiftManagementTab extends BaseTab {
     }
 
     async updateDateAndReload() {
-        document.getElementById('shift-current-date').textContent = DateUtils.formatDisplayDate(this.currentDate);
+        const dateElement = document.getElementById('shift-current-date');
+        if (dateElement) {
+            dateElement.textContent = this.formatCurrentDate();
+        }
         await this.loadShifts();
         this.render();
         this.setupEventListeners();
@@ -298,7 +317,7 @@ export class ShiftManagementTab extends BaseTab {
     }
 
     async copyFromYesterday() {
-        this.showCustomConfirm(
+        ErrorHandler.showConfirm(
             'Vuoi copiare i turni di ieri? Questo sostituirà i turni attuali.',
             async () => {
                 try {
@@ -307,18 +326,18 @@ export class ShiftManagementTab extends BaseTab {
                     const yesterdayShifts = await FirebaseAPI.getShifts(yesterdayStr);
                     
                     if (Object.keys(yesterdayShifts).length === 0) {
-                        this.showError('Nessun turno trovato per ieri');
+                        ErrorHandler.showError('Nessun turno trovato per ieri');
                         return;
                     }
                     
                     this.shifts = JSON.parse(JSON.stringify(yesterdayShifts)); // Deep copy
                     this.render();
                     this.setupEventListeners();
-                    this.showSuccess('Turni copiati da ieri');
+                    ErrorHandler.showSuccess('Turni copiati da ieri');
                     
                 } catch (error) {
-                    console.error('Error copying shifts:', error);
-                    this.showError('Errore nel copiare i turni');
+                    ErrorHandler.logError(error, 'ShiftManagementTab.copyFromYesterday');
+                    ErrorHandler.showError('Errore nel copiare i turni');
                 }
             }
         );
@@ -336,7 +355,7 @@ export class ShiftManagementTab extends BaseTab {
                     const shift = this.shifts[employee][i];
                     if (shift.start && shift.end && shift.type !== 'festa') {
                         if (TimeUtils.timeToMinutes(shift.end) <= TimeUtils.timeToMinutes(shift.start)) {
-                            this.showError(`Errore nel turno di ${employee}: l'orario di fine deve essere successivo all'orario di inizio`);
+                            ErrorHandler.showError(`Errore nel turno di ${SecurityUtils.sanitizeHTML(employee)}: l'orario di fine deve essere successivo all'orario di inizio`);
                             return;
                         }
                         
@@ -346,7 +365,7 @@ export class ShiftManagementTab extends BaseTab {
                             if (otherShift.start && otherShift.end && otherShift.type !== 'festa') {
                                 const overlap = this.checkShiftOverlap(shift, otherShift);
                                 if (overlap) {
-                                    this.showError(`Sovrapposizione di turni per ${employee}`);
+                                    ErrorHandler.showError(`Sovrapposizione di turni per ${SecurityUtils.sanitizeHTML(employee)}`);
                                     return;
                                 }
                             }
@@ -367,11 +386,11 @@ export class ShiftManagementTab extends BaseTab {
             }
             
             await FirebaseAPI.saveShifts(dateStr, cleanedShifts);
-            this.showSuccess('Turni salvati con successo');
+            ErrorHandler.showSuccess('Turni salvati con successo');
             
         } catch (error) {
-            console.error('Error saving shifts:', error);
-            this.showError('Errore nel salvataggio dei turni');
+            ErrorHandler.logError(error, 'ShiftManagementTab.saveShifts');
+            ErrorHandler.showError('Errore nel salvataggio dei turni');
         } finally {
             this.showLoading(false);
         }
@@ -387,13 +406,13 @@ export class ShiftManagementTab extends BaseTab {
     }
 
     clearShifts() {
-        this.showCustomConfirm(
+        ErrorHandler.showConfirm(
             'Sei sicuro di voler cancellare tutti i turni per questa data?',
             () => {
                 this.shifts = {};
                 this.render();
                 this.setupEventListeners();
-                this.showSuccess('Turni cancellati');
+                ErrorHandler.showSuccess('Turni cancellati');
             },
             'danger'
         );
@@ -401,11 +420,12 @@ export class ShiftManagementTab extends BaseTab {
 
     calculateWeeklyHours(employee) {
         let totalMinutes = 0;
+        const employeeName = typeof employee === 'object' ? employee.username : employee;
         const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
         
         weekDates.forEach(date => {
             const dateStr = DateUtils.formatDate(date);
-            const dayShifts = this.weekShifts[dateStr] && this.weekShifts[dateStr][employee] || [];
+            const dayShifts = this.weekShifts[dateStr] && this.weekShifts[dateStr][employeeName] || [];
             
             dayShifts.forEach(shift => {
                 if (shift.start && shift.end && shift.type !== 'festa') {
@@ -423,7 +443,10 @@ export class ShiftManagementTab extends BaseTab {
     }
 
     async updateWeekAndReload() {
-        document.getElementById('current-week-shifts').textContent = this.getWeekDisplayText();
+        const weekElement = document.getElementById('current-week-shifts');
+        if (weekElement) {
+            weekElement.textContent = this.getWeekDisplayText();
+        }
         await this.loadWeekData();
         this.renderShiftsCalendar();
     }
