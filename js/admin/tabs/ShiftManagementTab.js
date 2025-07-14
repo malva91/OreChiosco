@@ -432,15 +432,18 @@ export class ShiftManagementTab extends BaseTab {
         // Set CSS custom property for employee count
         document.documentElement.style.setProperty('--employees-count', this.employees.length);
         
-        // Render the calendar using the same renderer
+        // Render the calendar using the same renderer with correct container replacement
         const calendarContainer = document.getElementById('shifts-calendar-container');
         if (calendarContainer) {
-            calendarContainer.outerHTML = this.calendarRenderer.renderCalendar(
+            const calendarHTML = this.calendarRenderer.renderCalendar(
                 this.currentWeekStart, 
                 this.employees, 
                 this.weekShifts, 
                 'shifts-calendar'
             );
+            
+            // Replace the container content, not the container itself
+            calendarContainer.innerHTML = calendarHTML;
             
             // Setup scroll sync
             setTimeout(() => {
