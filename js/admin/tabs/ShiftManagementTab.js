@@ -74,8 +74,6 @@ export class ShiftManagementTab extends BaseTab {
         }
     }
 
-    }
-
     render() {
         this.container.innerHTML = `
             <div class="tab-header">
