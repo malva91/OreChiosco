@@ -31,7 +31,7 @@ export class HoursManagementTab extends BaseTab {
     render() {
         this.container.innerHTML = `
             <div class="tab-header">
-                <h3>Gestione Ore Dipendenti</h3>
+                <h3>Modifica Ore Dipendenti</h3>
                 <div class="admin-hours-info">
                     <p class="info-text">💡 Qui puoi modificare le ore inserite dai dipendenti</p>
                 </div>
@@ -83,10 +83,10 @@ export class HoursManagementTab extends BaseTab {
                     </div>
                     
                     <div class="employee-hours-history">
-                        <h4>Storico Ore</h4>
+                        <h4>Storico Ore - ${this.selectedEmployee || ''}</h4>
                         <div id="admin-hours-history"></div>
                         <div class="total-hours">
-                            <strong>Totale: <span id="admin-total-hours">0h 0m</span></strong>
+                            <strong>Totale Mese: <span id="admin-total-hours">0h 0m</span></strong>
                         </div>
                     </div>
                 </div>
@@ -122,24 +122,20 @@ export class HoursManagementTab extends BaseTab {
         // Rest day checkbox
         document.getElementById('admin-rest-day').addEventListener('change', (e) => {
             const shiftsContainer = document.getElementById('admin-shifts-container');
-            shiftsContainer.style.display = e.target.checked ? 'none' : 'block';
+            const festaCheckbox = document.getElementById('admin-festa');
+            
+            if (e.target.checked) {
+                shiftsContainer.style.display = 'none';
+                festaCheckbox.checked = false;
+                festaCheckbox.disabled = true;
+            } else {
+                festaCheckbox.disabled = false;
+                if (!festaCheckbox.checked) {
+                    shiftsContainer.style.display = 'block';
+                }
+            }
         });
 
-        // Add shift button
-        document.getElementById('add-admin-shift-btn').addEventListener('click', () => {
-            this.addAdminShift();
-        });
-
-        // Save hours button
-        document.getElementById('save-employee-hours-btn').addEventListener('click', () => {
-            this.saveEmployeeHours();
-        });
-        
-        // Reset hours button
-        document.getElementById('reset-employee-hours-btn').addEventListener('click', () => {
-            this.resetEmployeeHours();
-        });
-        
         // Festa checkbox
         document.getElementById('admin-festa').addEventListener('change', (e) => {
             const shiftsContainer = document.getElementById('admin-shifts-container');
@@ -156,10 +152,30 @@ export class HoursManagementTab extends BaseTab {
                 }
             }
         });
+
+        // Add shift button
+        document.getElementById('add-admin-shift-btn').addEventListener('click', () => {
+            this.addAdminShift();
+        });
+
+        // Save hours button
+        document.getElementById('save-employee-hours-btn').addEventListener('click', () => {
+            this.saveEmployeeHours();
+        });
+        
+        // Reset hours button
+        document.getElementById('reset-employee-hours-btn').addEventListener('click', () => {
+            this.resetEmployeeHours();
+        });
     }
 
     showEmployeeSection() {
         document.getElementById('employee-hours-section').style.display = 'block';
+        // Update the history title
+        const historyTitle = document.querySelector('.employee-hours-history h4');
+        if (historyTitle) {
+            historyTitle.textContent = `Storico Ore - ${this.selectedEmployee}`;
+        }
         this.shifts = [{ entry: '', exit: '' }];
         this.renderAdminShifts();
     }
@@ -189,6 +205,23 @@ export class HoursManagementTab extends BaseTab {
                 document.getElementById('admin-rest-day').checked = dayData.rest_day || false;
                 document.getElementById('admin-festa').checked = dayData.festa || false;
                 
+                // Handle checkbox states
+                const restDay = document.getElementById('admin-rest-day');
+                const festa = document.getElementById('admin-festa');
+                const shiftsContainer = document.getElementById('admin-shifts-container');
+                
+                if (dayData.rest_day) {
+                    shiftsContainer.style.display = 'none';
+                    festa.disabled = true;
+                } else if (dayData.festa) {
+                    shiftsContainer.style.display = 'none';
+                    restDay.disabled = true;
+                } else {
+                    shiftsContainer.style.display = 'block';
+                    restDay.disabled = false;
+                    festa.disabled = false;
+                }
+                
                 // Load shifts
                 this.shifts = [];
                 const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
@@ -210,6 +243,9 @@ export class HoursManagementTab extends BaseTab {
             } else {
                 document.getElementById('admin-rest-day').checked = false;
                 document.getElementById('admin-festa').checked = false;
+                document.getElementById('admin-rest-day').disabled = false;
+                document.getElementById('admin-festa').disabled = false;
+                document.getElementById('admin-shifts-container').style.display = 'block';
                 this.shifts = [{ entry: '', exit: '' }];
                 this.renderAdminShifts();
             }
@@ -240,17 +276,22 @@ export class HoursManagementTab extends BaseTab {
         } else {
             statusIndicator.className = 'status-indicator status-work';
             statusText.textContent = 'Ore lavorative inserite';
+            if (dayData.modified_by_admin) {
+                statusText.textContent += ' (Modificate da Admin)';
+            }
         }
     }
     
     async resetEmployeeHours() {
         if (!this.selectedEmployee) return;
         
-        if (!confirm('Sei sicuro di voler ripristinare i dati originali? Le modifiche non salvate andranno perse.')) {
-            return;
-        }
-        
-        await this.loadEmployeeHours();
+        this.showCustomConfirm(
+            'Sei sicuro di voler ripristinare i dati originali? Le modifiche non salvate andranno perse.',
+            async () => {
+                await this.loadEmployeeHours();
+                this.showSuccess('Dati ripristinati');
+            }
+        );
     }
 
     renderAdminShifts() {
@@ -336,6 +377,12 @@ export class HoursManagementTab extends BaseTab {
                     const shift = this.shifts[i];
                     
                     if (shift.entry && shift.exit) {
+                        // Validate time
+                        if (TimeUtils.timeToMinutes(shift.exit) <= TimeUtils.timeToMinutes(shift.entry)) {
+                            this.showError('L\'orario di uscita deve essere successivo all\'orario di entrata');
+                            return;
+                        }
+                        
                         hoursData[shiftNames[i]] = {
                             entry: shift.entry,
                             exit: shift.exit
@@ -344,8 +391,8 @@ export class HoursManagementTab extends BaseTab {
                     }
                 }
 
-                if (!hasValidShifts && !isRestDay && !isFesta) {
-                    this.showError('Inserire almeno un turno valido');
+                if (!hasValidShifts) {
+                    this.showError('Inserire almeno un turno valido con entrata e uscita');
                     return;
                 }
             }
@@ -373,10 +420,18 @@ export class HoursManagementTab extends BaseTab {
             return;
         }
         
-        const sortedDates = Object.keys(this.hoursData).sort().reverse();
+        // Get current month data
+        const currentMonth = this.currentDate.getMonth();
+        const currentYear = this.currentDate.getFullYear();
+        
+        const monthDates = Object.keys(this.hoursData).filter(dateStr => {
+            const date = DateUtils.parseDate(dateStr);
+            return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+        }).sort().reverse();
+        
         let totalMinutes = 0;
         
-        sortedDates.forEach(dateStr => {
+        monthDates.forEach(dateStr => {
             const dayData = this.hoursData[dateStr];
             const date = DateUtils.parseDate(dateStr);
             
@@ -388,6 +443,8 @@ export class HoursManagementTab extends BaseTab {
             
             if (dayData.rest_day) {
                 shiftsHtml = '<span class="rest-day">Giorno di riposo</span>';
+            } else if (dayData.festa) {
+                shiftsHtml = '<span class="festa-day">Festa</span>';
             } else {
                 const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
                 
@@ -408,13 +465,19 @@ export class HoursManagementTab extends BaseTab {
             
             totalMinutes += dayMinutes;
             
+            const isModified = dayData.modified_by_admin ? ' (Modificato da Admin)' : '';
+            
             dayDiv.innerHTML = `
                 <div class="day-header">
-                    <span class="day-date">${DateUtils.formatShortDate(date)}</span>
+                    <span class="day-date">${DateUtils.formatShortDate(date)}${isModified}</span>
                     <span class="day-total">${TimeUtils.formatDuration(dayMinutes)}</span>
                 </div>
                 <div class="day-shifts">${shiftsHtml}</div>
             `;
+            
+            if (dayData.modified_by_admin) {
+                dayDiv.classList.add('modified-by-admin');
+            }
             
             historyContainer.appendChild(dayDiv);
         });
