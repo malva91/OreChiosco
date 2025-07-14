@@ -39,7 +39,8 @@ export class CalendarRenderer {
             cellWidth = 45;
         }
         
-        const dayWidth = employees.length * cellWidth;
+        const employeeList = Array.isArray(employees) ? employees : Object.keys(employees).filter(emp => emp !== 'admin');
+        const dayWidth = employeeList.length * cellWidth;
         
         return `
             <div class="day-container" style="width: ${dayWidth}px; min-width: ${dayWidth}px;">
@@ -49,11 +50,15 @@ export class CalendarRenderer {
                     <div class="day-date">${dayDate}</div>
                 </div>
                 <div class="employees-row">
-                    ${employees.map((employee, empIndex) => `
-                        <div class="employee-header emp-color-${(empIndex % 15) + 1}">
-                            <span class="employee-name-vertical">${employee}</span>
+                    ${employeeList.map((employee, empIndex) => {
+                        const employeeName = typeof employee === 'string' ? employee : employee.username;
+                        const colorIndex = typeof employee === 'object' ? employee.colorIndex || (empIndex % 15) + 1 : (empIndex % 15) + 1;
+                        return `
+                        <div class="employee-header emp-color-${colorIndex}">
+                            <span class="employee-name-vertical">${employeeName}</span>
                         </div>
-                    `).join('')}
+                    `;
+                    }).join('')}
                 </div>
             </div>
         `;
@@ -88,19 +93,22 @@ export class CalendarRenderer {
     renderDaySlots(date, slot, employees, weekShifts, cellWidth) {
         const dateStr = DateUtils.formatDate(date);
         const dayShifts = weekShifts[dateStr] || {};
-        const dayWidth = employees.length * cellWidth;
+        const employeeList = Array.isArray(employees) ? employees : Object.keys(employees).filter(emp => emp !== 'admin');
+        const dayWidth = employeeList.length * cellWidth;
         
         return `
             <div class="day-slots" style="width: ${dayWidth}px; min-width: ${dayWidth}px;">
-                ${employees.map((employee, empIndex) => {
-                    const employeeShifts = dayShifts[employee] || [];
+                ${employeeList.map((employee, empIndex) => {
+                    const employeeName = typeof employee === 'string' ? employee : employee.username;
+                    const colorIndex = typeof employee === 'object' ? employee.colorIndex || (empIndex % 15) + 1 : (empIndex % 15) + 1;
+                    const employeeShifts = dayShifts[employeeName] || [];
                     let cellContent = '';
                     let cellClasses = ['time-slot-cell'];
                     
                     // Check if this slot is covered by a shift
                     employeeShifts.forEach(shift => {
                         if (TimeUtils.isTimeInRange(slot, shift.start, shift.end)) {
-                            const colorClass = `emp-color-${(empIndex % 15) + 1}`;
+                            const colorClass = `emp-color-${colorIndex}`;
                             
                             if (shift.type === 'festa') {
                                 cellClasses.push('festa-cell');

@@ -29,14 +29,16 @@ export class ValidationUtils {
         return errors;
     }
 
-    static validateEmployee(username, password) {
+    static validateEmployee(username, password, requirePasswordLength = true) {
         const errors = [];
 
         if (!username || username.trim().length < 3) {
             errors.push('Username deve avere almeno 3 caratteri');
         }
 
-        if (!password || password.length < 6) {
+        if (!password || password.trim().length === 0) {
+            errors.push('Password è obbligatoria');
+        } else if (requirePasswordLength && password.length < 6) {
             errors.push('Password deve avere almeno 6 caratteri');
         }
 

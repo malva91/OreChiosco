@@ -32,7 +32,9 @@ export class ShiftManagementTab extends BaseTab {
     async loadEmployees() {
         try {
             const employeesData = await FirebaseAPI.getEmployees();
-            this.employees = Object.keys(employeesData).filter(username => username !== 'admin');
+            this.employees = Object.entries(employeesData)
+                .filter(([username]) => username !== 'admin')
+                .map(([username, data]) => ({ username, ...data }));
         } catch (error) {
             console.error('Error loading employees:', error);
             this.showError('Errore nel caricamento dipendenti');
@@ -96,11 +98,11 @@ export class ShiftManagementTab extends BaseTab {
                 
                 <div class="calendar-legend">
                     <div class="legend-item">
-                        <div class="legend-color" style="background-color: #3182ce;"></div>
+                        <div class="legend-color admin-shift-legend"></div>
                         <span class="legend-text">Turni Admin</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background-color: #3182ce; opacity: 0.7; border: 2px dashed #fff;"></div>
+                        <div class="legend-color employee-hours-legend"></div>
                         <span class="legend-text">Ore Dipendenti 👤</span>
                     </div>
                     <div class="legend-item">
@@ -109,7 +111,9 @@ export class ShiftManagementTab extends BaseTab {
                     </div>
                 </div>
                 
-                ${this.calendarRenderer.renderCalendar(this.currentWeekStart, this.employees, this.weekShifts, 'shifts-calendar')}
+                <div class="shifts-calendar-wrapper">
+                    ${this.calendarRenderer.renderCalendar(this.currentWeekStart, this.employees, this.weekShifts, 'shifts-calendar')}
+                </div>
             </div>
         `;
     }
@@ -138,7 +142,9 @@ export class ShiftManagementTab extends BaseTab {
     renderEmployeeShifts(employee, index) {
         const employeeShifts = this.shifts[employee] || [];
         const weeklyHours = this.calculateWeeklyHours(employee);
-        const colorClass = `emp-color-${(index % 15) + 1}`;
+        const employeeData = Object.values(this.employees).find(emp => emp.username === employee);
+        const colorIndex = employeeData?.colorIndex || (index % 15) + 1;
+        const colorClass = `emp-color-${colorIndex}`;
         
         return `
             <div class="employee-shifts-card ${colorClass}">
