@@ -124,7 +124,7 @@ export class CalendarRenderer {
     }
 
     setupScrollSync(containerId) {
-        const table = document.getElementById(\`${containerId}-container`);
+        const table = document.getElementById(`${containerId}-container`);
         const header = table?.querySelector('thead');
         const body = table?.querySelector('tbody');
         
