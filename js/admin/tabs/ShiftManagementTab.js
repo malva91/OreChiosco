@@ -171,16 +171,21 @@ export class ShiftManagementTab extends BaseTab {
                 ${weekDates.map((date, dayIndex) => {
                     const dayWidth = this.employees.length * cellWidth;
                     const dateStr = DateUtils.formatDate(date);
-                    const dayShifts = this.weekShifts[dateStr] || {};
+                    
+                    // Get both admin-assigned shifts and employee hours
+                    const adminShifts = this.weekShifts[dateStr] || {};
+                    const employeeHours = this.getEmployeeHoursForDate(dateStr);
                     
                     return `
                         <div class="day-slots" style="width: ${dayWidth}px; min-width: ${dayWidth}px;">
                             ${this.employees.map((employee, empIndex) => {
-                                const employeeShifts = dayShifts[employee] || [];
+                                const adminEmployeeShifts = adminShifts[employee] || [];
+                                const employeeHoursData = employeeHours[employee];
                                 let cellContent = '';
                                 let cellClasses = ['time-slot-cell'];
                                 
-                                employeeShifts.forEach(shift => {
+                                // Check admin-assigned shifts first
+                                adminEmployeeShifts.forEach(shift => {
                                     if (TimeUtils.isTimeInRange(slot, shift.start, shift.end)) {
                                         const colorClass = `emp-color-${(empIndex % 15) + 1}`;
                                         
@@ -204,6 +209,33 @@ export class ShiftManagementTab extends BaseTab {
                                     }
                                 });
                                 
+                                // If no admin shifts, show employee-entered hours with different styling
+                                if (cellClasses.length === 1 && employeeHoursData && !employeeHoursData.rest_day) {
+                                    const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
+                                    
+                                    shiftNames.forEach(shiftName => {
+                                        if (employeeHoursData[shiftName]) {
+                                            const shift = employeeHoursData[shiftName];
+                                            if (TimeUtils.isTimeInRange(slot, shift.entry, shift.exit)) {
+                                                const colorClass = `emp-color-${(empIndex % 15) + 1}`;
+                                                cellClasses.push(colorClass);
+                                                cellClasses.push('employee-hours');
+                                                
+                                                if (slot === shift.entry) {
+                                                    cellContent = slot;
+                                                    cellClasses.push('shift-start');
+                                                } else if (slot === shift.exit || 
+                                                          (TimeUtils.timeToMinutes(slot) + 30 > TimeUtils.timeToMinutes(shift.exit))) {
+                                                    cellContent = shift.exit;
+                                                    cellClasses.push('shift-end');
+                                                } else {
+                                                    cellClasses.push('shift-mid');
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+                                
                                 return `<div class="${cellClasses.join(' ')}">${cellContent}</div>`;
                             }).join('')}
                         </div>
@@ -211,6 +243,41 @@ export class ShiftManagementTab extends BaseTab {
                 }).join('')}
             </div>
         `).join('');
+    }
+    
+    getEmployeeHoursForDate(dateStr) {
+        // This would need to be loaded from Firebase - for now return empty object
+        // In a real implementation, this should be loaded in loadWeekData()
+        return this.weekEmployeeHours?.[dateStr] || {};
+    }
+    
+    async loadWeekData() {
+        try {
+            const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
+            const startDate = DateUtils.formatDate(weekDates[0]);
+            const endDate = DateUtils.formatDate(weekDates[6]);
+            
+            // Load admin-assigned shifts
+            this.weekShifts = await FirebaseAPI.getWeekShifts(startDate, endDate);
+            
+            // Load employee-entered hours for comparison
+            this.weekEmployeeHours = {};
+            const allHours = await FirebaseAPI.getAllHours();
+            
+            weekDates.forEach(date => {
+                const dateStr = DateUtils.formatDate(date);
+                this.weekEmployeeHours[dateStr] = {};
+                
+                this.employees.forEach(employee => {
+                    if (allHours[employee] && allHours[employee][dateStr]) {
+                        this.weekEmployeeHours[dateStr][employee] = allHours[employee][dateStr];
+                    }
+                });
+            });
+            
+        } catch (error) {
+            console.error('Error loading week data:', error);
+        }
     }
 
     renderShiftsForm() {

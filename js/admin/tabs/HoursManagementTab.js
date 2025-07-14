@@ -32,6 +32,9 @@ export class HoursManagementTab extends BaseTab {
         this.container.innerHTML = `
             <div class="tab-header">
                 <h3>Gestione Ore Dipendenti</h3>
+                <div class="admin-hours-info">
+                    <p class="info-text">💡 Qui puoi modificare le ore inserite dai dipendenti</p>
+                </div>
             </div>
             
             <div class="hours-management">
@@ -51,10 +54,20 @@ export class HoursManagementTab extends BaseTab {
                     </div>
                     
                     <div class="hours-form">
+                        <div class="form-status" id="form-status">
+                            <div class="status-indicator" id="status-indicator">
+                                <span class="status-text" id="status-text">Nessun dato</span>
+                            </div>
+                        </div>
+                        
                         <div class="checkbox-group">
                             <label>
                                 <input type="checkbox" id="admin-rest-day">
                                 <span>Giorno di riposo</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="admin-festa">
+                                <span>Festa</span>
                             </label>
                         </div>
                         
@@ -63,8 +76,9 @@ export class HoursManagementTab extends BaseTab {
                         </div>
                         
                         <div class="form-actions">
-                            <button id="save-employee-hours-btn" class="btn btn-success">Salva Ore</button>
+                            <button id="save-employee-hours-btn" class="btn btn-success">💾 Salva Modifiche</button>
                             <button id="add-admin-shift-btn" class="btn btn-primary">+ Aggiungi Turno</button>
+                            <button id="reset-employee-hours-btn" class="btn btn-warning">🔄 Ripristina Originale</button>
                         </div>
                     </div>
                     
@@ -120,6 +134,28 @@ export class HoursManagementTab extends BaseTab {
         document.getElementById('save-employee-hours-btn').addEventListener('click', () => {
             this.saveEmployeeHours();
         });
+        
+        // Reset hours button
+        document.getElementById('reset-employee-hours-btn').addEventListener('click', () => {
+            this.resetEmployeeHours();
+        });
+        
+        // Festa checkbox
+        document.getElementById('admin-festa').addEventListener('change', (e) => {
+            const shiftsContainer = document.getElementById('admin-shifts-container');
+            const restDay = document.getElementById('admin-rest-day');
+            
+            if (e.target.checked) {
+                shiftsContainer.style.display = 'none';
+                restDay.checked = false;
+                restDay.disabled = true;
+            } else {
+                restDay.disabled = false;
+                if (!restDay.checked) {
+                    shiftsContainer.style.display = 'block';
+                }
+            }
+        });
     }
 
     showEmployeeSection() {
@@ -146,8 +182,12 @@ export class HoursManagementTab extends BaseTab {
             this.hoursData = await FirebaseAPI.getEmployeeHours(this.selectedEmployee);
             const dayData = this.hoursData[dateStr];
             
+            // Update status indicator
+            this.updateFormStatus(dayData);
+            
             if (dayData) {
                 document.getElementById('admin-rest-day').checked = dayData.rest_day || false;
+                document.getElementById('admin-festa').checked = dayData.festa || false;
                 
                 // Load shifts
                 this.shifts = [];
@@ -169,6 +209,7 @@ export class HoursManagementTab extends BaseTab {
                 this.renderAdminShifts();
             } else {
                 document.getElementById('admin-rest-day').checked = false;
+                document.getElementById('admin-festa').checked = false;
                 this.shifts = [{ entry: '', exit: '' }];
                 this.renderAdminShifts();
             }
@@ -181,6 +222,35 @@ export class HoursManagementTab extends BaseTab {
         } finally {
             this.showLoading(false);
         }
+    }
+    
+    updateFormStatus(dayData) {
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+        
+        if (!dayData) {
+            statusIndicator.className = 'status-indicator status-empty';
+            statusText.textContent = 'Nessun dato inserito';
+        } else if (dayData.rest_day) {
+            statusIndicator.className = 'status-indicator status-rest';
+            statusText.textContent = 'Giorno di riposo';
+        } else if (dayData.festa) {
+            statusIndicator.className = 'status-indicator status-festa';
+            statusText.textContent = 'Festa';
+        } else {
+            statusIndicator.className = 'status-indicator status-work';
+            statusText.textContent = 'Ore lavorative inserite';
+        }
+    }
+    
+    async resetEmployeeHours() {
+        if (!this.selectedEmployee) return;
+        
+        if (!confirm('Sei sicuro di voler ripristinare i dati originali? Le modifiche non salvate andranno perse.')) {
+            return;
+        }
+        
+        await this.loadEmployeeHours();
     }
 
     renderAdminShifts() {
@@ -249,10 +319,16 @@ export class HoursManagementTab extends BaseTab {
         try {
             const dateStr = DateUtils.formatDate(this.currentDate);
             const isRestDay = document.getElementById('admin-rest-day').checked;
+            const isFesta = document.getElementById('admin-festa').checked;
             
-            const hoursData = { rest_day: isRestDay };
+            const hoursData = { 
+                rest_day: isRestDay,
+                festa: isFesta,
+                modified_by_admin: true,
+                modified_at: new Date().toISOString()
+            };
 
-            if (!isRestDay) {
+            if (!isRestDay && !isFesta) {
                 const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
                 let hasValidShifts = false;
 
@@ -268,14 +344,14 @@ export class HoursManagementTab extends BaseTab {
                     }
                 }
 
-                if (!hasValidShifts) {
+                if (!hasValidShifts && !isRestDay && !isFesta) {
                     this.showError('Inserire almeno un turno valido');
                     return;
                 }
             }
 
             await FirebaseAPI.saveEmployeeHours(this.selectedEmployee, dateStr, hoursData);
-            this.showSuccess('Ore salvate con successo');
+            this.showSuccess('Modifiche salvate con successo');
             
             await this.loadEmployeeHours();
             
