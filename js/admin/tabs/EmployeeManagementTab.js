@@ -40,23 +40,18 @@ export class EmployeeManagementTab extends BaseTab {
     renderEmployeesGrid() {
         const employeesList = Object.entries(this.employees)
             .filter(([username]) => username !== 'admin')
-            .map(([username, data], index) => {
-                const colorIndex = data.colorIndex || (index % 15) + 1;
-                return `
+            .map(([username, data]) => `
                 <div class="employee-card">
-                    <div class="employee-color-preview emp-color-${colorIndex}"></div>
                     <div class="employee-info">
                         <h4>${username}</h4>
                         <p>Ruolo: ${data.role}</p>
-                        <p>Colore: <span class="color-label">Colore ${colorIndex}</span></p>
                     </div>
                     <div class="employee-actions">
                         <button class="btn btn-secondary btn-sm edit-employee-btn" data-username="${username}">Modifica</button>
                         <button class="btn btn-danger btn-sm delete-employee-btn" data-username="${username}">Elimina</button>
                     </div>
                 </div>
-            `;
-            }).join('');
+            `).join('');
 
         return employeesList || '<p>Nessun dipendente trovato</p>';
     }
@@ -127,12 +122,10 @@ export class EmployeeManagementTab extends BaseTab {
             document.getElementById('employee-username').disabled = true;
             document.getElementById('employee-password').value = employee.password;
             document.getElementById('employee-role').value = employee.role;
-            document.getElementById('employee-color').value = employee.colorIndex || 1;
         } else {
             title.textContent = 'Aggiungi Dipendente';
             form.reset();
             document.getElementById('employee-username').disabled = false;
-            document.getElementById('employee-color').value = this.getNextAvailableColor();
         }
         
         modal.style.display = 'block';
@@ -144,28 +137,13 @@ export class EmployeeManagementTab extends BaseTab {
         this.editingEmployee = null;
     }
 
-    getNextAvailableColor() {
-        const usedColors = Object.values(this.employees)
-            .filter(emp => emp.colorIndex)
-            .map(emp => emp.colorIndex);
-        
-        for (let i = 1; i <= 15; i++) {
-            if (!usedColors.includes(i)) {
-                return i;
-            }
-        }
-        
-        return 1; // Fallback
-    }
-
     async saveEmployee() {
         const username = document.getElementById('employee-username').value.trim();
         const password = document.getElementById('employee-password').value;
         const role = document.getElementById('employee-role').value;
-        const colorIndex = parseInt(document.getElementById('employee-color').value);
 
         // Validate input
-        const errors = ValidationUtils.validateEmployee(username, password, false); // Remove password length requirement
+        const errors = ValidationUtils.validateEmployee(username, password);
         if (errors.length > 0) {
             this.showError(errors.join('\n'));
             return;
@@ -182,8 +160,7 @@ export class EmployeeManagementTab extends BaseTab {
         try {
             const employeeData = {
                 password: password,
-                role: role,
-                colorIndex: colorIndex
+                role: role
             };
 
             if (this.editingEmployee) {

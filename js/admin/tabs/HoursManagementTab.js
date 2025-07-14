@@ -32,68 +32,61 @@ export class HoursManagementTab extends BaseTab {
         this.container.innerHTML = `
             <div class="tab-header">
                 <h3>Modifica Ore Dipendenti</h3>
-            </div>
-            
-            <div class="admin-hours-info">
-                <p class="info-text">💡 Qui puoi modificare le ore inserite dai dipendenti per ogni giorno</p>
+                <div class="admin-hours-info">
+                    <p class="info-text">💡 Qui puoi modificare le ore inserite dai dipendenti</p>
+                </div>
             </div>
             
             <div class="hours-management">
-                <div class="hours-management-header">
-                    <div class="employee-selector">
-                        <label for="employee-select">Seleziona Dipendente:</label>
-                        <select id="employee-select">
-                            <option value="">Seleziona...</option>
-                            ${this.employees.map(emp => `<option value="${emp}">${emp}</option>`).join('')}
-                        </select>
-                    </div>
+                <div class="employee-selector">
+                    <label for="employee-select">Seleziona Dipendente:</label>
+                    <select id="employee-select">
+                        <option value="">Seleziona...</option>
+                        ${this.employees.map(emp => `<option value="${emp}">${emp}</option>`).join('')}
+                    </select>
                 </div>
                 
                 <div id="employee-hours-section" style="display: none;">
-                    <div class="hours-date-section">
-                        <div class="date-navigation">
-                            <button id="prev-hours-date" class="btn btn-secondary">◀</button>
-                            <span id="hours-current-date">${DateUtils.formatDisplayDate(this.currentDate)}</span>
-                            <button id="next-hours-date" class="btn btn-secondary">▶</button>
-                        </div>
+                    <div class="date-navigation">
+                        <button id="prev-hours-date" class="btn btn-secondary">◀</button>
+                        <span id="hours-current-date">${DateUtils.formatDisplayDate(this.currentDate)}</span>
+                        <button id="next-hours-date" class="btn btn-secondary">▶</button>
                     </div>
                     
-                    <div class="hours-edit-container">
-                        <div class="hours-form-card">
-                            <div class="form-status" id="form-status">
-                                <div class="status-indicator" id="status-indicator">
-                                    <span class="status-text" id="status-text">Nessun dato</span>
-                                </div>
-                            </div>
-                            
-                            <div class="checkbox-group">
-                                <label>
-                                    <input type="checkbox" id="admin-rest-day">
-                                    <span>Giorno di riposo</span>
-                                </label>
-                                <label>
-                                    <input type="checkbox" id="admin-festa">
-                                    <span>Festa</span>
-                                </label>
-                            </div>
-                            
-                            <div id="admin-shifts-container">
-                                <!-- Shifts will be added here -->
-                            </div>
-                            
-                            <div class="form-actions">
-                                <button id="save-employee-hours-btn" class="btn btn-success">💾 Salva Modifiche</button>
-                                <button id="add-admin-shift-btn" class="btn btn-primary">+ Aggiungi Turno</button>
-                                <button id="reset-employee-hours-btn" class="btn btn-warning">🔄 Ripristina Originale</button>
+                    <div class="hours-form">
+                        <div class="form-status" id="form-status">
+                            <div class="status-indicator" id="status-indicator">
+                                <span class="status-text" id="status-text">Nessun dato</span>
                             </div>
                         </div>
                         
-                        <div class="employee-hours-history-card">
-                            <h4>Storico Ore - ${this.selectedEmployee || ''}</h4>
-                            <div id="admin-hours-history"></div>
-                            <div class="total-hours">
-                                <strong>Totale Mese: <span id="admin-total-hours">0h 0m</span></strong>
-                            </div>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="admin-rest-day">
+                                <span>Giorno di riposo</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="admin-festa">
+                                <span>Festa</span>
+                            </label>
+                        </div>
+                        
+                        <div id="admin-shifts-container">
+                            <!-- Shifts will be added here -->
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button id="save-employee-hours-btn" class="btn btn-success">💾 Salva Modifiche</button>
+                            <button id="add-admin-shift-btn" class="btn btn-primary">+ Aggiungi Turno</button>
+                            <button id="reset-employee-hours-btn" class="btn btn-warning">🔄 Ripristina Originale</button>
+                        </div>
+                    </div>
+                    
+                    <div class="employee-hours-history">
+                        <h4>Storico Ore - ${this.selectedEmployee || ''}</h4>
+                        <div id="admin-hours-history"></div>
+                        <div class="total-hours">
+                            <strong>Totale Mese: <span id="admin-total-hours">0h 0m</span></strong>
                         </div>
                     </div>
                 </div>

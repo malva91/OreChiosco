@@ -1,53 +1,43 @@
 import { TimeUtils } from './TimeUtils.js';
-import { SecurityUtils } from './SecurityUtils.js';
-import { CONFIG } from '../config.js';
 
 export class ValidationUtils {
     static validateTimeInput(startTime, endTime) {
         const errors = [];
 
-        if (!SecurityUtils.isValidTimeFormat(startTime)) {
+        if (!TimeUtils.isValidTime(startTime)) {
             errors.push('Orario di inizio non valido');
         }
 
-        if (!SecurityUtils.isValidTimeFormat(endTime)) {
+        if (!TimeUtils.isValidTime(endTime)) {
             errors.push('Orario di fine non valido');
         }
 
-        if (SecurityUtils.isValidTimeFormat(startTime) && SecurityUtils.isValidTimeFormat(endTime)) {
+        if (TimeUtils.isValidTime(startTime) && TimeUtils.isValidTime(endTime)) {
             if (TimeUtils.timeToMinutes(endTime) <= TimeUtils.timeToMinutes(startTime)) {
                 errors.push('L\'orario di fine deve essere successivo all\'orario di inizio');
             }
         }
 
         if (!TimeUtils.isInWorkingHours(startTime)) {
-            errors.push(`Orario di inizio fuori dall'orario lavorativo (${CONFIG.WORKING_HOURS.START}-${CONFIG.WORKING_HOURS.END})`);
+            errors.push('Orario di inizio fuori dall\'orario lavorativo (06:00-21:30)');
         }
 
         if (!TimeUtils.isInWorkingHours(endTime)) {
-            errors.push(`Orario di fine fuori dall'orario lavorativo (${CONFIG.WORKING_HOURS.START}-${CONFIG.WORKING_HOURS.END})`);
+            errors.push('Orario di fine fuori dall\'orario lavorativo (06:00-21:30)');
         }
 
         return errors;
     }
 
-    static validateEmployee(username, password, requirePasswordLength = false) {
+    static validateEmployee(username, password) {
         const errors = [];
 
-        const sanitizedUsername = SecurityUtils.sanitizeInput(username);
-        
-        if (!sanitizedUsername || sanitizedUsername.length < CONFIG.VALIDATION.MIN_USERNAME_LENGTH) {
-            errors.push(`Username deve avere almeno ${CONFIG.VALIDATION.MIN_USERNAME_LENGTH} caratteri`);
-        }
-        
-        if (!SecurityUtils.validateUsername(sanitizedUsername)) {
-            errors.push('Username può contenere solo lettere, numeri e underscore');
+        if (!username || username.trim().length < 3) {
+            errors.push('Username deve avere almeno 3 caratteri');
         }
 
-        if (!password || password.length === 0) {
-            errors.push('Password è obbligatoria');
-        } else if (requirePasswordLength && password.length < CONFIG.VALIDATION.MIN_PASSWORD_LENGTH) {
-            errors.push(`Password deve avere almeno ${CONFIG.VALIDATION.MIN_PASSWORD_LENGTH} caratteri`);
+        if (!password || password.length < 6) {
+            errors.push('Password deve avere almeno 6 caratteri');
         }
 
         return errors;
@@ -73,12 +63,7 @@ export class ValidationUtils {
         return null;
     }
 
-    static validateDate(dateString) {
-        return SecurityUtils.isValidDateFormat(dateString);
-    }
-    
-    static validateColorIndex(colorIndex) {
-        const index = parseInt(colorIndex);
-        return !isNaN(index) && index >= 1 && index <= CONFIG.EMPLOYEE_COLORS_COUNT;
+    static sanitizeInput(input) {
+        return input.trim().replace(/[<>]/g, '');
     }
 }

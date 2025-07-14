@@ -3,26 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Gestione Turni</title>
+    <title>Admin - Chiosco</title>
     <link rel="stylesheet" href="style/02_components_1.css">
     <link rel="stylesheet" href="style/02_components_2.css">
     <link rel="stylesheet" href="style/03_layout_1.css">
     <link rel="stylesheet" href="style/03_layout_2.css">
-    <link rel="stylesheet" href="style/04_calendar_1.css">
-    <link rel="stylesheet" href="style/04_calendar_2.css">
     <link rel="stylesheet" href="style/05_mobile_optimization.css">
 </head>
 <body>
-    <div id="app">
-        <div class="loading-spinner" id="loading-spinner">
-            <div class="spinner"></div>
-            <p>Caricamento...</p>
-        </div>
-        
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    
+    <div class="app-container">
         <nav class="sidebar">
             <div class="sidebar-header">
                 <h2>🏖️ Chiosco</h2>
-                <p id="user-info">Admin Panel</p>
+                <p id="user-info">Admin</p>
             </div>
             
             <ul class="sidebar-nav">
@@ -34,83 +30,79 @@
         </nav>
         
         <main class="main-content">
+            <header class="page-header">
+                <h1>Pannello Admin</h1>
+            </header>
+            
             <div class="admin-tabs">
-                <button class="tab-btn active" data-tab="employees">👥 Dipendenti</button>
-                <button class="tab-btn" data-tab="shifts">📋 Turni</button>
-                <button class="tab-btn" data-tab="hours">⏰ Ore</button>
-                <button class="tab-btn" data-tab="hours-view">📊 Visualizza Ore</button>
-                <button class="tab-btn" data-tab="monthly-total">📈 Totali Mensili</button>
+                <button class="tab-button active" data-tab="employees">Gestione Dipendenti</button>
+                <button class="tab-button" data-tab="shifts">Turni</button>
+                <button class="tab-button" data-tab="hours-input">Modifica Ore</button>
+                <button class="tab-button" data-tab="hours-view">Visualizza Ore</button>
+                <button class="tab-button" data-tab="monthly-total">Totale Mensile</button>
             </div>
             
             <div class="tab-content">
-                <div id="employees-tab" class="tab-pane active"></div>
-                <div id="shifts-tab" class="tab-pane"></div>
-                <div id="hours-tab" class="tab-pane"></div>
-                <div id="hours-view-tab" class="tab-pane"></div>
-                <div id="monthly-total-tab" class="tab-pane"></div>
+                <div id="employees-tab" class="tab-pane active">
+                    <!-- Employee management content will be loaded here -->
+                </div>
+                
+                <div id="shifts-tab" class="tab-pane">
+                    <!-- Shift management content will be loaded here -->
+                </div>
+                
+                <div id="hours-input-tab" class="tab-pane">
+                    <!-- Hours input content will be loaded here -->
+                </div>
+                
+                <div id="hours-view-tab" class="tab-pane">
+                    <!-- Hours view content will be loaded here -->
+                </div>
+                
+                <div id="monthly-total-tab" class="tab-pane">
+                    <!-- Monthly total content will be loaded here -->
+                </div>
             </div>
         </main>
-        
-        <!-- Employee Modal -->
-        <div id="employee-modal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 id="modal-title">Aggiungi Dipendente</h3>
-                    <span class="modal-close">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <form id="employee-form">
-                        <div class="form-group">
-                            <label for="employee-username">Username</label>
-                            <input type="text" id="employee-username" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="employee-password">Password</label>
-                            <input type="password" id="employee-password" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="employee-role">Ruolo</label>
-                            <select id="employee-role" required>
-                                <option value="employee">Dipendente</option>
-                                <option value="manager">Manager</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="employee-color">Colore</label>
-                            <select id="employee-color" required>
-                                <option value="1">Colore 1</option>
-                                <option value="2">Colore 2</option>
-                                <option value="3">Colore 3</option>
-                                <option value="4">Colore 4</option>
-                                <option value="5">Colore 5</option>
-                                <option value="6">Colore 6</option>
-                                <option value="7">Colore 7</option>
-                                <option value="8">Colore 8</option>
-                                <option value="9">Colore 9</option>
-                                <option value="10">Colore 10</option>
-                                <option value="11">Colore 11</option>
-                                <option value="12">Colore 12</option>
-                                <option value="13">Colore 13</option>
-                                <option value="14">Colore 14</option>
-                                <option value="15">Colore 15</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary modal-close">Annulla</button>
-                    <button type="button" id="save-employee-btn" class="btn btn-primary">Salva</button>
-                </div>
+    </div>
+
+    <!-- Employee Modal -->
+    <div id="employee-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Aggiungi Dipendente</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="employee-form">
+                    <div class="form-group">
+                        <label for="employee-username">Username</label>
+                        <input type="text" id="employee-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-password">Password</label>
+                        <input type="password" id="employee-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-role">Ruolo</label>
+                        <select id="employee-role" required>
+                            <option value="employee">Dipendente</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="save-employee-btn" class="btn btn-primary">Salva</button>
+                <button class="btn btn-secondary modal-close">Annulla</button>
             </div>
         </div>
     </div>
-    
-    <!-- Loading Overlay -->
+
     <div id="loading-overlay" class="loading-overlay" style="display: none;">
-        <div class="loading-spinner"></div>
-        <p>Caricamento...</p>
+        <div class="spinner"></div>
     </div>
-    
+
     <script type="module" src="js/admin.js"></script>
 </body>
 </html>

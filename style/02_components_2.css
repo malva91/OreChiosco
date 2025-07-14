@@ -106,93 +106,6 @@
     display: block;
 }
 
-/* Employee Color Preview */
-.employee-color-preview {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    margin-bottom: 0.5rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.color-label {
-    font-weight: 500;
-    font-size: 0.8rem;
-}
-
-/* Hours Management Layout */
-.hours-management-header {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.hours-date-section {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-.hours-edit-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-}
-
-.hours-form-card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-}
-
-.employee-hours-history-card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-}
-
-.employee-hours-history-card h4 {
-    margin: 0 0 1rem 0;
-    color: var(--text-primary);
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.5rem;
-}
-
-/* Shifts Calendar Wrapper */
-.shifts-calendar-wrapper {
-    /* Wrapper inherits calendar styling */
-}
-
-/* Calendar Legend Improvements */
-.calendar-legend {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.admin-shift-legend {
-    background-color: #3182ce;
-}
-
-.employee-hours-legend {
-    background-color: #3182ce;
-    opacity: 0.7;
-    border: 2px dashed #fff;
-}
-
 /* Employee Management Cards */
 .employees-grid {
     display: grid;
@@ -207,20 +120,11 @@
     border-radius: 0.5rem;
     padding: 1rem;
     transition: all 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
 }
 
 .employee-card:hover {
     border-color: var(--primary-color);
     transform: translateY(-2px);
-}
-
-.employee-info {
-    width: 100%;
-    margin-bottom: 1rem;
 }
 
 .employee-info h4 {
@@ -235,10 +139,9 @@
 }
 
 .employee-actions {
+    margin-top: 1rem;
     display: flex;
     gap: 0.5rem;
-    width: 100%;
-    justify-content: center;
 }
 
 /* Employee Shifts Grid */
@@ -750,20 +653,16 @@
     justify-content: center;
     align-items: center;
     z-index: 2000;
-    padding: 1rem;
 }
 
 .alert-content,
 .confirm-content {
     background-color: var(--card-bg);
     border-radius: 0.5rem;
-    padding: 2rem;
+    padding: 1.5rem;
     max-width: 400px;
     width: 90%;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
-    max-height: 80vh;
-    overflow-y: auto;
 }
 
 .alert-header,
@@ -772,14 +671,11 @@
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border-color);
 }
 
 .alert-icon,
 .confirm-icon {
     font-size: 1.5rem;
-    flex-shrink: 0;
 }
 
 .alert-title,
@@ -795,7 +691,6 @@
     color: var(--text-secondary);
     margin-bottom: 1.5rem;
     line-height: 1.5;
-    word-wrap: break-word;
 }
 
 .alert-actions,
@@ -803,8 +698,6 @@
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--border-color);
 }
 
 .alert-success .alert-icon { color: var(--success-color); }
@@ -818,23 +711,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-    .hours-edit-container {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .hours-management-header,
-    .hours-date-section,
-    .hours-form-card,
-    .employee-hours-history-card {
-        padding: 1rem;
-    }
-    
-    .calendar-legend {
-        gap: 1rem;
-        padding: 0.75rem;
-    }
-    
     .admin-tabs {
         flex-wrap: wrap;
     }

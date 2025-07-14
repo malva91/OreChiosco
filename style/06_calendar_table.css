@@ -1,0 +1,391 @@
+/* Calendar Table Styles */
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.calendar-table thead {
+    background-color: var(--secondary-color);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.calendar-table tbody {
+    background-color: var(--card-bg);
+}
+
+.calendar-table th,
+.calendar-table td {
+    border: 1px solid var(--border-color);
+    text-align: center;
+    vertical-align: middle;
+    position: relative;
+    padding: 0.5rem;
+}
+
+/* Header Styles */
+.time-header {
+    width: 80px;
+    min-width: 80px;
+    font-weight: 600;
+    background-color: var(--secondary-color);
+    color: white;
+    position: sticky;
+    left: 0;
+    z-index: 15;
+}
+
+.time-header-empty {
+    width: 80px;
+    min-width: 80px;
+    background-color: var(--secondary-color);
+    position: sticky;
+    left: 0;
+    z-index: 15;
+}
+
+.day-header {
+    background-color: var(--secondary-color);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 0.5rem;
+    min-width: 120px;
+}
+
+.day-header.today {
+    background-color: var(--warning-color);
+    color: var(--body-bg);
+}
+
+.day-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.day-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.day-date {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+/* Employee Header Row */
+.employees-header-row th {
+    padding: 0.5rem 0.25rem;
+    background-color: var(--secondary-color);
+    color: white;
+    font-weight: 600;
+    font-size: 0.75rem;
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+}
+
+.employee-header {
+    position: relative;
+    overflow: hidden;
+}
+
+.employee-name-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    display: inline-block;
+    white-space: nowrap;
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1.2;
+    max-height: 80px;
+    overflow: hidden;
+}
+
+/* Time Slots */
+.time-slot {
+    height: 40px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background-color: var(--card-bg);
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+    font-weight: 500;
+}
+
+.time-row {
+    height: 40px;
+}
+
+.time-slot-cell {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    height: 40px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    position: relative;
+    padding: 0.25rem;
+}
+
+.time-slot-cell:hover {
+    background-color: rgba(100, 116, 139, 0.1);
+}
+
+/* Shift Cell Styles */
+.shift-start {
+    border-top: 3px solid rgba(255, 255, 255, 0.4);
+    font-weight: 600;
+}
+
+.shift-end {
+    border-bottom: 3px solid rgba(255, 255, 255, 0.4);
+    font-weight: 600;
+}
+
+.shift-mid {
+    opacity: 0.8;
+}
+
+/* Employee Colors for Table */
+.emp-color-1 { background-color: #e53e3e; color: #fff; }
+.emp-color-2 { background-color: #3182ce; color: #fff; }
+.emp-color-3 { background-color: #38a169; color: #fff; }
+.emp-color-4 { background-color: #dd6b20; color: #fff; }
+.emp-color-5 { background-color: #9f7aea; color: #fff; }
+.emp-color-6 { background-color: #38b2ac; color: #fff; }
+.emp-color-7 { background-color: #d69e2e; color: #fff; }
+.emp-color-8 { background-color: #ed64a6; color: #fff; }
+.emp-color-9 { background-color: #4299e1; color: #fff; }
+.emp-color-10 { background-color: #48bb78; color: #fff; }
+.emp-color-11 { background-color: #667eea; color: #fff; }
+.emp-color-12 { background-color: #f56565; color: #fff; }
+.emp-color-13 { background-color: #ed8936; color: #fff; }
+.emp-color-14 { background-color: #9f7aea; color: #fff; }
+.emp-color-15 { background-color: #4fd1c7; color: #000; }
+
+.festa-cell {
+    background-color: #ffe066 !important;
+    color: #000 !important;
+    font-weight: bold;
+    position: relative;
+}
+
+/* Employee Hours vs Admin Shifts */
+.employee-hours {
+    opacity: 0.7;
+    border: 2px dashed rgba(255, 255, 255, 0.5) !important;
+    position: relative;
+}
+
+.employee-hours::after {
+    content: '👤';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.6rem;
+    opacity: 0.8;
+}
+
+/* Container Scrolling */
+#shifts-calendar-container,
+#calendar-container {
+    max-width: 100%;
+    overflow: auto;
+    max-height: 600px;
+    border-radius: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--card-bg);
+}
+
+#shifts-calendar-container::-webkit-scrollbar,
+#calendar-container::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+#shifts-calendar-container::-webkit-scrollbar-track,
+#calendar-container::-webkit-scrollbar-track {
+    background: var(--card-bg);
+    border-radius: 6px;
+}
+
+#shifts-calendar-container::-webkit-scrollbar-thumb,
+#calendar-container::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 6px;
+    border: 2px solid var(--card-bg);
+}
+
+#shifts-calendar-container::-webkit-scrollbar-thumb:hover,
+#calendar-container::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .calendar-table {
+        font-size: 0.8rem;
+    }
+    
+    .time-header,
+    .time-header-empty {
+        width: 50px;
+        min-width: 50px;
+        font-size: 0.7rem;
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .employees-header-row th {
+        width: 45px;
+        min-width: 45px;
+        max-width: 45px;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.6rem;
+    }
+    
+    .employee-name-vertical {
+        font-size: 0.55rem;
+        letter-spacing: 0.3px;
+        max-height: 60px;
+    }
+    
+    .time-slot-cell {
+        width: 45px;
+        min-width: 45px;
+        max-width: 45px;
+        height: 30px;
+        font-size: 0.65rem;
+        padding: 0.125rem;
+    }
+    
+    .time-slot {
+        height: 30px;
+        font-size: 0.65rem;
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+    }
+    
+    .time-row {
+        height: 30px;
+    }
+    
+    .day-name {
+        font-size: 0.8rem;
+    }
+    
+    .day-date {
+        font-size: 0.7rem;
+    }
+    
+    .day-header {
+        min-width: 90px;
+        padding: 0.5rem 0.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .time-header,
+    .time-header-empty {
+        width: 40px;
+        min-width: 40px;
+        font-size: 0.65rem;
+        padding: 0.25rem;
+    }
+    
+    .employees-header-row th {
+        width: 35px;
+        min-width: 35px;
+        max-width: 35px;
+        padding: 0.25rem 0.125rem;
+        font-size: 0.55rem;
+    }
+    
+    .employee-name-vertical {
+        font-size: 0.5rem;
+        letter-spacing: 0.2px;
+        max-height: 50px;
+    }
+    
+    .time-slot-cell {
+        width: 35px;
+        min-width: 35px;
+        max-width: 35px;
+        height: 25px;
+        font-size: 0.6rem;
+        padding: 0.125rem;
+    }
+    
+    .time-slot {
+        height: 25px;
+        font-size: 0.6rem;
+        width: 40px;
+        min-width: 40px;
+        max-width: 40px;
+    }
+    
+    .time-row {
+        height: 25px;
+    }
+    
+    .day-name {
+        font-size: 0.7rem;
+    }
+    
+    .day-date {
+        font-size: 0.65rem;
+    }
+    
+    .day-header {
+        min-width: 70px;
+        padding: 0.25rem 0.125rem;
+    }
+    
+    .day-title {
+        gap: 0.125rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .calendar-table {
+        border: 1px solid #000;
+        background: white;
+    }
+    
+    .calendar-table thead {
+        background: #f5f5f5 !important;
+        color: #000 !important;
+    }
+    
+    .time-header,
+    .time-slot {
+        background: #f5f5f5 !important;
+        color: #000 !important;
+    }
+    
+    .emp-color-1 { background: #f44336 !important; }
+    .emp-color-2 { background: #2196f3 !important; }
+    .emp-color-3 { background: #4caf50 !important; }
+    .emp-color-4 { background: #ff9800 !important; }
+    
+    .festa-cell {
+        background: #ffe066 !important;
+        color: #000 !important;
+    }
+}

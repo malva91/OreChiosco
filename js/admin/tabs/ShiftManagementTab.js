@@ -3,8 +3,6 @@ import FirebaseAPI from '../../firebase.js';
 import { DateUtils } from '../../utils/DateUtils.js';
 import { TimeUtils } from '../../utils/TimeUtils.js';
 import { ValidationUtils } from '../../utils/ValidationUtils.js';
-import { ErrorHandler } from '../../utils/ErrorHandler.js';
-import { SecurityUtils } from '../../utils/SecurityUtils.js';
 import { CalendarRenderer } from '../../calendar/CalendarRenderer.js';
 
 export class ShiftManagementTab extends BaseTab {
@@ -24,26 +22,15 @@ export class ShiftManagementTab extends BaseTab {
         await this.loadWeekData();
         this.render();
         this.setupEventListeners();
-        
-        // Render the calendar with proper layout
-        this.renderShiftsCalendar();
-        
-        // Setup scroll sync for the shifts calendar
-        setTimeout(() => {
-            this.calendarRenderer.setupScrollSync('shifts-calendar');
-        }, 100);
     }
 
     async loadEmployees() {
         try {
             const employeesData = await FirebaseAPI.getEmployees();
-            this.employees = Object.entries(employeesData)
-                .filter(([username]) => username !== 'admin')
-                .map(([username, data]) => ({ username, ...data }));
+            this.employees = Object.keys(employeesData).filter(username => username !== 'admin');
         } catch (error) {
             console.error('Error loading employees:', error);
-            ErrorHandler.logError(error, 'ShiftManagementTab.loadEmployees');
-            ErrorHandler.showError('Errore nel caricamento dipendenti');
+            this.showError('Errore nel caricamento dipendenti');
         }
     }
 
@@ -53,8 +40,7 @@ export class ShiftManagementTab extends BaseTab {
             this.shifts = await FirebaseAPI.getShifts(dateStr);
         } catch (error) {
             console.error('Error loading shifts:', error);
-            ErrorHandler.logError(error, 'ShiftManagementTab.loadShifts');
-            ErrorHandler.showError('Errore nel caricamento turni');
+            this.showError('Errore nel caricamento turni');
         }
     }
 
@@ -70,12 +56,48 @@ export class ShiftManagementTab extends BaseTab {
             // Load employee hours for the week
             const allHours = await FirebaseAPI.getAllHours();
             
-            // Non caricare le ore dipendenti nel calendario turni
+            // Merge employee hours into week shifts for display
+            weekDates.forEach(date => {
+                const dateStr = DateUtils.formatDate(date);
+                if (!this.weekShifts[dateStr]) {
+                    this.weekShifts[dateStr] = {};
+                }
+                
+                this.employees.forEach(employee => {
+                    const employeeHours = allHours[employee] || {};
+                    const dayData = employeeHours[dateStr];
+                    
+                    if (dayData && !dayData.rest_day) {
+                        const employeeShifts = [];
+                        const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
+                        
+                        shiftNames.forEach(shiftName => {
+                            if (dayData[shiftName]) {
+                                const shift = dayData[shiftName];
+                                employeeShifts.push({
+                                    start: shift.entry,
+                                    end: shift.exit,
+                                    type: 'employee_hours'
+                                });
+                            }
+                        });
+                        
+                        if (employeeShifts.length > 0) {
+                            if (!this.weekShifts[dateStr][employee]) {
+                                this.weekShifts[dateStr][employee] = [];
+                            }
+                            this.weekShifts[dateStr][employee] = [
+                                ...this.weekShifts[dateStr][employee],
+                                ...employeeShifts
+                            ];
+                        }
+                    }
+                });
+            });
             
         } catch (error) {
             console.error('Error loading week data:', error);
-            ErrorHandler.logError(error, 'ShiftManagementTab.loadWeekData');
-            ErrorHandler.showError('Errore nel caricamento dati settimanali');
+            this.showError('Errore nel caricamento dati settimanali');
         }
     }
 
@@ -85,7 +107,7 @@ export class ShiftManagementTab extends BaseTab {
                 <h3>Gestione Turni</h3>
                 <div class="date-navigation">
                     <button id="prev-shift-date" class="btn btn-secondary">◀</button>
-                    <span id="shift-current-date">${this.formatCurrentDate()}</span>
+                    <span id="shift-current-date">${DateUtils.formatDisplayDate(this.currentDate)}</span>
                     <button id="next-shift-date" class="btn btn-secondary">▶</button>
                 </div>
             </div>
@@ -96,7 +118,7 @@ export class ShiftManagementTab extends BaseTab {
             
             <div class="shifts-calendar-section">
                 <div class="calendar-header-section">
-                    <h4>Calendario Turni</h4>
+                    <h4>📅 Calendario Settimanale</h4>
                     <div class="week-navigation">
                         <button id="prev-week-shifts" class="btn btn-secondary">◀ Settimana Precedente</button>
                         <span id="current-week-shifts">${this.getWeekDisplayText()}</span>
@@ -106,30 +128,33 @@ export class ShiftManagementTab extends BaseTab {
                 
                 <div class="calendar-legend">
                     <div class="legend-item">
-                        <div class="legend-color admin-shift-legend" style="background-color: #3182ce;"></div>
+                        <div class="legend-color" style="background-color: #3182ce;"></div>
                         <span class="legend-text">Turni Admin</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #3182ce; opacity: 0.7; border: 2px dashed #fff;"></div>
+                        <span class="legend-text">Ore Dipendenti 👤</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color festa-cell"></div>
+                        <span class="legend-text">Festa 🎉</span>
                     </div>
                 </div>
                 
-                <div id="shifts-calendar-container">
-                    <!-- Calendar will be rendered here -->
-                </div>
+                ${this.calendarRenderer.renderMiniCalendar(this.currentWeekStart, this.employees, this.weekShifts)}
             </div>
         `;
     }
 
-    formatCurrentDate() {
-        try {
-            return DateUtils.formatDisplayDate(this.currentDate);
-        } catch (error) {
-            ErrorHandler.logError(error, 'ShiftManagementTab.formatCurrentDate');
-            return 'Data non valida';
-        }
+    getWeekDisplayText() {
+        const weekEnd = DateUtils.addDays(this.currentWeekStart, 6);
+        return `${DateUtils.formatShortDate(this.currentWeekStart)} - ${DateUtils.formatShortDate(weekEnd)}`;
     }
+
     renderShiftsForm() {
         return `
             <div class="shifts-form">
-                <h4>Assegnazione Turni per ${this.formatCurrentDate()}</h4>
+                <h4>Assegnazione Turni per ${DateUtils.formatDisplayDate(this.currentDate)}</h4>
                 <div class="employees-shifts-grid">
                     ${this.employees.map((employee, index) => this.renderEmployeeShifts(employee, index)).join('')}
                 </div>
@@ -143,28 +168,19 @@ export class ShiftManagementTab extends BaseTab {
     }
 
     renderEmployeeShifts(employee, index) {
-        const employeeName = typeof employee === 'object' ? employee.username : employee;
-        const employeeShifts = this.shifts[employeeName] || [];
-        const weeklyHours = this.calculateWeeklyHours(employee);
-        const employeeData = this.employees.find(emp => 
-            (typeof emp === 'object' ? emp.username : emp) === employeeName
-        );
-        const colorIndex = employeeData?.colorIndex || (index % 15) + 1;
-        const colorClass = `emp-color-${colorIndex}`;
+        const employeeShifts = this.shifts[employee] || [];
+        const colorClass = `emp-color-${(index % 15) + 1}`;
         
         return `
             <div class="employee-shifts-card ${colorClass}">
                 <div class="employee-header">
-                    <div class="employee-info">
-                        <h5>${SecurityUtils.sanitizeHTML(employeeName)}</h5>
-                        <div class="weekly-hours">Ore settimana: ${TimeUtils.formatDuration(weeklyHours)}</div>
-                    </div>
-                    <button class="btn btn-primary btn-sm add-shift-btn" data-employee="${employeeName}">+ Turno</button>
+                    <h5>${employee}</h5>
+                    <button class="btn btn-primary btn-sm add-shift-btn" data-employee="${employee}">+ Turno</button>
                 </div>
                 <div class="shifts-list" id="shifts-${employee}">
                     ${employeeShifts.length > 0 ? 
-                        employeeShifts.map((shift, index) => this.renderShiftForm(employeeName, shift, index)).join('') :
-                        this.renderShiftForm(employeeName, { start: '', end: '', type: 'default' }, 0)
+                        employeeShifts.map((shift, index) => this.renderShiftForm(employee, shift, index)).join('') :
+                        this.renderShiftForm(employee, { start: '', end: '', type: 'default' }, 0)
                     }
                 </div>
             </div>
@@ -211,6 +227,17 @@ export class ShiftManagementTab extends BaseTab {
             this.updateDateAndReload();
         });
 
+        // Week navigation
+        document.getElementById('prev-week-shifts').addEventListener('click', () => {
+            this.currentWeekStart = DateUtils.addDays(this.currentWeekStart, -7);
+            this.updateWeekAndReload();
+        });
+
+        document.getElementById('next-week-shifts').addEventListener('click', () => {
+            this.currentWeekStart = DateUtils.addDays(this.currentWeekStart, 7);
+            this.updateWeekAndReload();
+        });
+
         // Add shift buttons
         document.querySelectorAll('.add-shift-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -249,25 +276,18 @@ export class ShiftManagementTab extends BaseTab {
         document.getElementById('copy-yesterday-btn').addEventListener('click', () => {
             this.copyFromYesterday();
         });
-
-        // Week navigation for calendar
-        document.getElementById('prev-week-shifts').addEventListener('click', () => {
-            this.currentWeekStart = DateUtils.addDays(this.currentWeekStart, -7);
-            this.updateWeekAndReload();
-        });
-
-        document.getElementById('next-week-shifts').addEventListener('click', () => {
-            this.currentWeekStart = DateUtils.addDays(this.currentWeekStart, 7);
-            this.updateWeekAndReload();
-        });
     }
 
     async updateDateAndReload() {
-        const dateElement = document.getElementById('shift-current-date');
-        if (dateElement) {
-            dateElement.textContent = this.formatCurrentDate();
-        }
+        document.getElementById('shift-current-date').textContent = DateUtils.formatDisplayDate(this.currentDate);
         await this.loadShifts();
+        this.render();
+        this.setupEventListeners();
+    }
+
+    async updateWeekAndReload() {
+        document.getElementById('current-week-shifts').textContent = this.getWeekDisplayText();
+        await this.loadWeekData();
         this.render();
         this.setupEventListeners();
     }
@@ -317,7 +337,7 @@ export class ShiftManagementTab extends BaseTab {
     }
 
     async copyFromYesterday() {
-        ErrorHandler.showConfirm(
+        this.showCustomConfirm(
             'Vuoi copiare i turni di ieri? Questo sostituirà i turni attuali.',
             async () => {
                 try {
@@ -326,18 +346,18 @@ export class ShiftManagementTab extends BaseTab {
                     const yesterdayShifts = await FirebaseAPI.getShifts(yesterdayStr);
                     
                     if (Object.keys(yesterdayShifts).length === 0) {
-                        ErrorHandler.showError('Nessun turno trovato per ieri');
+                        this.showError('Nessun turno trovato per ieri');
                         return;
                     }
                     
                     this.shifts = JSON.parse(JSON.stringify(yesterdayShifts)); // Deep copy
                     this.render();
                     this.setupEventListeners();
-                    ErrorHandler.showSuccess('Turni copiati da ieri');
+                    this.showSuccess('Turni copiati da ieri');
                     
                 } catch (error) {
-                    ErrorHandler.logError(error, 'ShiftManagementTab.copyFromYesterday');
-                    ErrorHandler.showError('Errore nel copiare i turni');
+                    console.error('Error copying shifts:', error);
+                    this.showError('Errore nel copiare i turni');
                 }
             }
         );
@@ -355,7 +375,7 @@ export class ShiftManagementTab extends BaseTab {
                     const shift = this.shifts[employee][i];
                     if (shift.start && shift.end && shift.type !== 'festa') {
                         if (TimeUtils.timeToMinutes(shift.end) <= TimeUtils.timeToMinutes(shift.start)) {
-                            ErrorHandler.showError(`Errore nel turno di ${SecurityUtils.sanitizeHTML(employee)}: l'orario di fine deve essere successivo all'orario di inizio`);
+                            this.showError(`Errore nel turno di ${employee}: l'orario di fine deve essere successivo all'orario di inizio`);
                             return;
                         }
                         
@@ -365,7 +385,7 @@ export class ShiftManagementTab extends BaseTab {
                             if (otherShift.start && otherShift.end && otherShift.type !== 'festa') {
                                 const overlap = this.checkShiftOverlap(shift, otherShift);
                                 if (overlap) {
-                                    ErrorHandler.showError(`Sovrapposizione di turni per ${SecurityUtils.sanitizeHTML(employee)}`);
+                                    this.showError(`Sovrapposizione di turni per ${employee}`);
                                     return;
                                 }
                             }
@@ -386,11 +406,16 @@ export class ShiftManagementTab extends BaseTab {
             }
             
             await FirebaseAPI.saveShifts(dateStr, cleanedShifts);
-            ErrorHandler.showSuccess('Turni salvati con successo');
+            this.showSuccess('Turni salvati con successo');
+            
+            // Reload week data to update calendar
+            await this.loadWeekData();
+            this.render();
+            this.setupEventListeners();
             
         } catch (error) {
-            ErrorHandler.logError(error, 'ShiftManagementTab.saveShifts');
-            ErrorHandler.showError('Errore nel salvataggio dei turni');
+            console.error('Error saving shifts:', error);
+            this.showError('Errore nel salvataggio dei turni');
         } finally {
             this.showLoading(false);
         }
@@ -406,72 +431,15 @@ export class ShiftManagementTab extends BaseTab {
     }
 
     clearShifts() {
-        ErrorHandler.showConfirm(
+        this.showCustomConfirm(
             'Sei sicuro di voler cancellare tutti i turni per questa data?',
             () => {
                 this.shifts = {};
                 this.render();
                 this.setupEventListeners();
-                ErrorHandler.showSuccess('Turni cancellati');
+                this.showSuccess('Turni cancellati');
             },
             'danger'
         );
-    }
-
-    calculateWeeklyHours(employee) {
-        let totalMinutes = 0;
-        const employeeName = typeof employee === 'object' ? employee.username : employee;
-        const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
-        
-        weekDates.forEach(date => {
-            const dateStr = DateUtils.formatDate(date);
-            const dayShifts = this.weekShifts[dateStr] && this.weekShifts[dateStr][employeeName] || [];
-            
-            dayShifts.forEach(shift => {
-                if (shift.start && shift.end && shift.type !== 'festa') {
-                    totalMinutes += TimeUtils.calculateDuration(shift.start, shift.end);
-                }
-            });
-        });
-        
-        return totalMinutes;
-    }
-
-    getWeekDisplayText() {
-        const weekEnd = DateUtils.addDays(this.currentWeekStart, 6);
-        return `${DateUtils.formatShortDate(this.currentWeekStart)} - ${DateUtils.formatShortDate(weekEnd)}`;
-    }
-
-    async updateWeekAndReload() {
-        const weekElement = document.getElementById('current-week-shifts');
-        if (weekElement) {
-            weekElement.textContent = this.getWeekDisplayText();
-        }
-        await this.loadWeekData();
-        this.renderShiftsCalendar();
-    }
-
-    renderShiftsCalendar() {
-        // Set CSS custom property for employee count
-        document.documentElement.style.setProperty('--employees-count', this.employees.length);
-        
-        // Render the calendar using the same renderer with correct container replacement
-        const calendarContainer = document.getElementById('shifts-calendar-container');
-        if (calendarContainer) {
-            const calendarHTML = this.calendarRenderer.renderCalendar(
-                this.currentWeekStart, 
-                this.employees, 
-                this.weekShifts, 
-                'shifts-calendar'
-            );
-            
-            // Replace the container content, not the container itself
-            calendarContainer.innerHTML = calendarHTML;
-            
-            // Setup scroll sync
-            setTimeout(() => {
-                this.calendarRenderer.setupScrollSync('shifts-calendar');
-            }, 100);
-        }
     }
 }
