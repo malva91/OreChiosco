@@ -1,6 +1,7 @@
 import FirebaseAPI from './firebase.js';
 import { DateUtils } from './utils/DateUtils.js';
 import { TimeUtils } from './utils/TimeUtils.js';
+import { MobileMenuManager } from './utils/MobileMenuManager.js';
 
 class CalendarManager {
     constructor() {
@@ -25,6 +26,7 @@ class CalendarManager {
     async init() {
         this.setupUI();
         this.setupEventListeners();
+        this.mobileMenuManager = new MobileMenuManager();
         await this.loadEmployees();
         await this.loadWeekData();
         this.renderCalendar();
@@ -108,15 +110,30 @@ class CalendarManager {
         
         const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
         
+        // Set CSS custom property for employee count
+        document.documentElement.style.setProperty('--employees-count', this.employees.length);
+        
         // Per ogni giorno della settimana
         weekDates.forEach((date, dayIndex) => {
             const dayContainer = document.createElement('div');
             dayContainer.className = 'day-container';
             
-            // Calcola la larghezza totale per questo giorno (numero dipendenti * 60px)
-            const dayWidth = this.employees.length * 60;
+            // Calculate width based on screen size
+            let cellWidth = 60;
+            if (window.innerWidth <= 480) {
+                cellWidth = 35;
+            } else if (window.innerWidth <= 768) {
+                cellWidth = 45;
+            }
+            
+            const dayWidth = this.employees.length * cellWidth;
             dayContainer.style.width = `${dayWidth}px`;
             dayContainer.style.minWidth = `${dayWidth}px`;
+            
+            // Add day separator
+            const separator = document.createElement('div');
+            separator.className = 'day-separator';
+            dayContainer.appendChild(separator);
             
             const dayName = DateUtils.getDayName(date);
             const dayDate = DateUtils.formatShortDate(date);
@@ -168,6 +185,14 @@ class CalendarManager {
         const slots = TimeUtils.generateTimeSlots();
         const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
         
+        // Calculate cell width based on screen size
+        let cellWidth = 60;
+        if (window.innerWidth <= 480) {
+            cellWidth = 35;
+        } else if (window.innerWidth <= 768) {
+            cellWidth = 45;
+        }
+        
         // Per ogni slot orario
         slots.forEach(slot => {
             const timeRow = document.createElement('div');
@@ -179,7 +204,7 @@ class CalendarManager {
                 dayContainer.className = 'day-slots';
                 
                 // Mantieni la stessa larghezza dell'header
-                const dayWidth = this.employees.length * 60;
+                const dayWidth = this.employees.length * cellWidth;
                 dayContainer.style.width = `${dayWidth}px`;
                 dayContainer.style.minWidth = `${dayWidth}px`;
                 

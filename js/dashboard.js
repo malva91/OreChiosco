@@ -2,6 +2,7 @@ import FirebaseAPI from './firebase.js';
 import { DateUtils } from './utils/DateUtils.js';
 import { TimeUtils } from './utils/TimeUtils.js';
 import { ValidationUtils } from './utils/ValidationUtils.js';
+import { MobileMenuManager } from './utils/MobileMenuManager.js';
 
 class DashboardManager {
     constructor() {
@@ -25,6 +26,7 @@ class DashboardManager {
     async init() {
         this.setupUI();
         this.setupEventListeners();
+        this.mobileMenuManager = new MobileMenuManager();
         await this.loadCurrentDayData();
     }
 

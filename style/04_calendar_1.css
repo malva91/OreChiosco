@@ -48,10 +48,26 @@
     flex-direction: column;
     flex-shrink: 0;
     border-right: 1px solid var(--border-color);
+    position: relative;
 }
 
 .day-container:last-child {
     border-right: none;
+}
+
+/* Day Separator */
+.day-separator {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--primary-color);
+    z-index: 10;
+}
+
+.day-container:last-child .day-separator {
+    display: none;
 }
 
 .day-title {
@@ -168,10 +184,26 @@
     display: flex;
     border-right: 1px solid var(--border-color);
     flex-shrink: 0;
+    position: relative;
 }
 
 .day-slots:last-child {
     border-right: none;
+}
+
+.day-slots::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--primary-color);
+    z-index: 5;
+}
+
+.day-slots:last-child::after {
+    display: none;
 }
 
 .time-slot-cell {
@@ -260,68 +292,17 @@
 /* Responsive Design */
 @media (max-width: 768px) {
     .calendar-container {
-        margin: 0 -1rem;
+        margin: 0 -0.5rem;
         border-radius: 0;
+        font-size: 0.8rem;
     }
     
     .time-header,
     .time-label-column {
-        width: 60px;
-        min-width: 60px;
-        max-width: 60px;
-    }
-    
-    .employee-header {
         width: 50px;
         min-width: 50px;
         max-width: 50px;
-        padding: 0.5rem 0.25rem;
-        font-size: 0.65rem;
-    }
-    
-    .employee-name-vertical {
-        font-size: 0.6rem;
-    }
-    
-    .time-slot-cell {
-        width: 50px;
-        min-width: 50px;
-        max-width: 50px;
-        height: 35px;
         font-size: 0.7rem;
-    }
-    
-    .time-slot {
-        height: 35px;
-        padding: 0.25rem;
-        font-size: 0.7rem;
-    }
-    
-    .day-name {
-        font-size: 0.75rem;
-    }
-    
-    .day-date {
-        font-size: 0.7rem;
-    }
-    
-    .week-navigation {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .week-navigation .btn {
-        width: 100%;
-        max-width: 200px;
-    }
-}
-
-@media (max-width: 480px) {
-    .time-header,
-    .time-label-column {
-        width: 50px;
-        min-width: 50px;
-        max-width: 50px;
     }
     
     .employee-header {
@@ -334,6 +315,7 @@
     
     .employee-name-vertical {
         font-size: 0.55rem;
+        letter-spacing: 0.3px;
     }
     
     .time-slot-cell {
@@ -346,7 +328,23 @@
     
     .time-slot {
         height: 30px;
+        padding: 0.25rem;
         font-size: 0.65rem;
+    }
+    
+    .time-row {
+        height: 30px;
+    }
+    
+    /* Adjust day container width for mobile */
+    .day-container {
+        min-width: calc(var(--employees-count, 4) * 45px) !important;
+        width: calc(var(--employees-count, 4) * 45px) !important;
+    }
+    
+    .day-slots {
+        min-width: calc(var(--employees-count, 4) * 45px) !important;
+        width: calc(var(--employees-count, 4) * 45px) !important;
     }
     
     .day-name {
@@ -357,7 +355,87 @@
         font-size: 0.65rem;
     }
     
-    .day-title {
+    .week-navigation {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .week-navigation .btn {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-container {
+        margin: 0 -0.25rem;
+    }
+    
+    .time-header,
+    .time-label-column {
+        width: 40px;
+        min-width: 40px;
+        max-width: 40px;
+        font-size: 0.65rem;
         padding: 0.25rem;
+    }
+    
+    .employee-header {
+        width: 35px;
+        min-width: 35px;
+        max-width: 35px;
+        padding: 0.25rem 0.125rem;
+        font-size: 0.55rem;
+    }
+    
+    .employee-name-vertical {
+        font-size: 0.5rem;
+        letter-spacing: 0.2px;
+    }
+    
+    .time-slot-cell {
+        width: 35px;
+        min-width: 35px;
+        max-width: 35px;
+        height: 25px;
+        font-size: 0.6rem;
+    }
+    
+    .time-slot {
+        height: 25px;
+        font-size: 0.6rem;
+        padding: 0.125rem;
+    }
+    
+    .time-row {
+        height: 25px;
+    }
+    
+    /* Adjust day container width for very small screens */
+    .day-container {
+        min-width: calc(var(--employees-count, 4) * 35px) !important;
+        width: calc(var(--employees-count, 4) * 35px) !important;
+    }
+    
+    .day-slots {
+        min-width: calc(var(--employees-count, 4) * 35px) !important;
+        width: calc(var(--employees-count, 4) * 35px) !important;
+    }
+    
+    .day-name {
+        font-size: 0.65rem;
+    }
+    
+    .day-date {
+        font-size: 0.6rem;
+    }
+    
+    .day-title {
+        padding: 0.125rem;
+    }
+    
+    .week-navigation .btn {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.6rem;
     }
 }

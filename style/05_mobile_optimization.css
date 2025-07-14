@@ -1,0 +1,558 @@
+/* Mobile Optimization Styles */
+
+/* General Mobile Improvements */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    /* Touch-friendly buttons */
+    .btn {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .btn-sm {
+        min-height: 36px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Form improvements */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 0.75rem;
+    }
+    
+    /* Card improvements */
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .card-header {
+        padding: 0.75rem;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+    
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    /* Tab improvements */
+    .admin-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .admin-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .tab-button {
+        flex-shrink: 0;
+        min-width: 120px;
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Modal improvements */
+    .modal-content {
+        width: 95%;
+        max-width: none;
+        margin: 1rem;
+        max-height: calc(100vh - 2rem);
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 0.75rem;
+    }
+    
+    /* Dashboard grid */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    /* Employee cards */
+    .employees-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .employee-card {
+        padding: 0.75rem;
+    }
+    
+    .employee-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    /* Shift forms */
+    .shift-form {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .time-inputs,
+    .shift-inputs {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    /* Hours history */
+    .hours-history {
+        max-height: 300px;
+        padding: 0.5rem;
+    }
+    
+    .history-day {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Navigation improvements */
+    .date-navigation,
+    .week-navigation {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+    
+    .date-navigation .btn,
+    .week-navigation .btn {
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 0.5rem;
+        padding-top: 4rem;
+    }
+    
+    .page-header {
+        margin-bottom: 1rem;
+    }
+    
+    .page-header h1 {
+        font-size: 1.25rem;
+    }
+    
+    .card-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .tab-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    /* Smaller buttons for very small screens */
+    .btn {
+        min-height: 40px;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn-sm {
+        min-height: 32px;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Compact forms */
+    .form-group {
+        margin-bottom: 0.75rem;
+    }
+    
+    .form-group label {
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+    }
+    
+    .checkbox-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    /* Compact tables */
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Compact stats */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* Shifts Layout for Mobile */
+@media (max-width: 1024px) {
+    .shifts-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .shifts-form-section {
+        order: 1;
+    }
+    
+    .shifts-calendar-section {
+        order: 2;
+    }
+}
+
+@media (min-width: 1025px) {
+    .shifts-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+}
+
+/* Mini Calendar Styles */
+.mini-calendar-container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    font-size: 0.8rem;
+}
+
+.mini-calendar-header {
+    display: flex;
+    background-color: var(--secondary-color);
+    color: white;
+    border-bottom: 1px solid var(--border-color);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.mini-calendar-header::-webkit-scrollbar {
+    display: none;
+}
+
+.mini-time-header {
+    width: 50px;
+    min-width: 50px;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    background-color: var(--secondary-color);
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    font-size: 0.75rem;
+}
+
+.mini-employees-header {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+}
+
+.mini-day-container {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.mini-day-separator {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--primary-color);
+    z-index: 10;
+}
+
+.mini-day-container:last-child .mini-day-separator {
+    display: none;
+}
+
+.mini-day-title {
+    padding: 0.5rem 0.25rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--secondary-color);
+    font-size: 0.7rem;
+}
+
+.mini-day-title.today {
+    background-color: var(--warning-color);
+    color: var(--body-bg);
+}
+
+.mini-day-name {
+    font-weight: 600;
+    margin-bottom: 0.125rem;
+}
+
+.mini-day-date {
+    font-size: 0.65rem;
+    opacity: 0.8;
+}
+
+.mini-employees-row {
+    display: flex;
+}
+
+.mini-employee-header {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    padding: 0.5rem 0.25rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.65rem;
+    border-right: 1px solid var(--border-color);
+    color: white;
+}
+
+.mini-employee-header:last-child {
+    border-right: none;
+}
+
+.mini-employee-name {
+    font-size: 0.6rem;
+    font-weight: 600;
+}
+
+.mini-calendar-body {
+    display: flex;
+    max-height: 400px;
+    overflow: auto;
+}
+
+.mini-time-labels {
+    width: 50px;
+    min-width: 50px;
+    background-color: var(--card-bg);
+    border-right: 1px solid var(--border-color);
+    position: sticky;
+    left: 0;
+    z-index: 5;
+}
+
+.mini-time-slot {
+    height: 30px;
+    padding: 0.25rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--card-bg);
+}
+
+.mini-shifts-grid {
+    flex: 1;
+}
+
+.mini-time-row {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    height: 30px;
+}
+
+.mini-day-slots {
+    display: flex;
+    position: relative;
+}
+
+.mini-day-separator-line {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--primary-color);
+    z-index: 5;
+}
+
+.mini-day-slots:last-child .mini-day-separator-line {
+    display: none;
+}
+
+.mini-time-slot-cell {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    height: 30px;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.mini-time-slot-cell:last-child {
+    border-right: none;
+}
+
+.calendar-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.calendar-header-section h4 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+/* Mobile optimizations for mini calendar */
+@media (max-width: 768px) {
+    .mini-calendar-container {
+        font-size: 0.75rem;
+    }
+    
+    .mini-time-header {
+        width: 40px;
+        min-width: 40px;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.7rem;
+    }
+    
+    .mini-employee-header {
+        width: 35px;
+        min-width: 35px;
+        max-width: 35px;
+        padding: 0.25rem 0.125rem;
+        font-size: 0.6rem;
+    }
+    
+    .mini-employee-name {
+        font-size: 0.55rem;
+    }
+    
+    .mini-time-slot-cell {
+        width: 35px;
+        min-width: 35px;
+        max-width: 35px;
+        height: 25px;
+        font-size: 0.6rem;
+    }
+    
+    .mini-time-slot {
+        height: 25px;
+        font-size: 0.6rem;
+    }
+    
+    .mini-time-row {
+        height: 25px;
+    }
+    
+    .mini-time-labels {
+        width: 40px;
+        min-width: 40px;
+    }
+    
+    .calendar-header-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .calendar-header-section h4 {
+        text-align: center;
+        font-size: 1rem;
+    }
+    
+    .week-navigation {
+        justify-content: center;
+    }
+}
+
+/* Touch improvements */
+@media (hover: none) and (pointer: coarse) {
+    .btn:hover {
+        transform: none;
+    }
+    
+    .employee-card:hover {
+        transform: none;
+    }
+    
+    .time-slot-cell:hover {
+        background-color: transparent;
+    }
+    
+    /* Larger touch targets */
+    .sidebar-nav a {
+        padding: 1rem 1.5rem;
+        min-height: 48px;
+    }
+    
+    .tab-button {
+        min-height: 48px;
+        padding: 0.75rem 1rem;
+    }
+    
+    .mobile-menu-toggle {
+        min-width: 48px;
+        min-height: 48px;
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .main-content {
+        padding-top: 3rem;
+    }
+    
+    .page-header {
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .calendar-container {
+        max-height: calc(100vh - 200px);
+    }
+    
+    .mini-calendar-body {
+        max-height: 250px;
+    }
+}

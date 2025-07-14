@@ -48,6 +48,7 @@
 .app-container {
     display: flex;
     min-height: 100vh;
+    position: relative;
 }
 
 /* Sidebar */
@@ -56,7 +57,18 @@
     background-color: var(--card-bg);
     border-right: 1px solid var(--border-color);
     flex-shrink: 0;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+}
+
+.sidebar.open {
+    transform: translateX(0);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-header {
@@ -111,6 +123,50 @@
     flex: 1;
     padding: 2rem;
     overflow-x: auto;
+    margin-left: 0;
+    width: 100%;
+    transition: margin-left 0.3s ease;
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+    display: block;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    background-color: var(--card-bg);
+    border-radius: 0.375rem;
+    border: 1px solid var(--border-color);
+}
+
+.mobile-menu-toggle:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
 }
 
 .page-header {
@@ -120,6 +176,7 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
+    margin-top: 3rem;
 }
 
 .page-header h1 {
@@ -218,26 +275,15 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-    .sidebar {
-        transform: translateX(-100%);
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        z-index: 100;
-    }
-    
-    .sidebar.open {
-        transform: translateX(0);
-    }
-    
     .main-content {
         padding: 1rem;
+        padding-top: 4rem;
     }
     
     .page-header {
         flex-direction: column;
         align-items: flex-start;
+        margin-top: 0;
     }
     
     .dashboard-grid {
@@ -266,21 +312,9 @@
     .employee-selector select {
         max-width: 100%;
     }
-}
-
-/* Mobile Menu Toggle */
-.mobile-menu-toggle {
-    display: none;
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.5rem;
-}
-
-@media (max-width: 1024px) {
-    .mobile-menu-toggle {
-        display: block;
+    
+    .main-content {
+        padding: 0.5rem;
+        padding-top: 4rem;
     }
 }

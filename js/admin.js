@@ -1,5 +1,6 @@
 import FirebaseAPI from './firebase.js';
 import { AdminTabManager } from './admin/AdminTabManager.js';
+import { MobileMenuManager } from './utils/MobileMenuManager.js';
 
 class AdminManager {
     constructor() {
@@ -21,6 +22,7 @@ class AdminManager {
     async init() {
         this.setupUI();
         this.setupEventListeners();
+        this.mobileMenuManager = new MobileMenuManager();
         this.tabManager = new AdminTabManager();
         await this.tabManager.init();
     }
