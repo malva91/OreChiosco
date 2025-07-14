@@ -1,0 +1,304 @@
+/* Vertical Text Optimization */
+.employee-name-vertical {
+    line-height: 1.2;
+    letter-spacing: 0.5px;
+}
+
+/* Better spacing for many employees */
+.employees-row {
+    min-width: fit-content;
+}
+
+.day-slots {
+    min-width: fit-content;
+}
+
+/* Calendar Enhancements */
+
+/* Scroll Synchronization */
+.calendar-header {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+}
+
+.calendar-body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+
+.calendar-body::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.calendar-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.calendar-body::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 4px;
+}
+
+.calendar-body::-webkit-scrollbar-thumb:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Calendar Legend */
+.calendar-legend {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 0.25rem;
+}
+
+.legend-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Enhanced Time Slots */
+.time-slot.hour-mark {
+    background-color: rgba(100, 116, 139, 0.1);
+    font-weight: 600;
+}
+
+.time-slot-cell.hour-mark {
+    border-top: 2px solid var(--border-color);
+}
+
+/* Shift Tooltips */
+.shift-tooltip {
+    position: absolute;
+    background-color: var(--body-bg);
+    color: var(--text-primary);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    border: 1px solid var(--border-color);
+    z-index: 1000;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.time-slot-cell:hover .shift-tooltip {
+    opacity: 1;
+}
+
+/* Current Time Indicator */
+.current-time-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--danger-color);
+    z-index: 20;
+    pointer-events: none;
+}
+
+.current-time-indicator::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: -3px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--danger-color);
+    border-radius: 50%;
+}
+
+/* Calendar Summary */
+.calendar-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.summary-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.summary-title {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.summary-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Loading States */
+.calendar-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+}
+
+.calendar-loading .spinner {
+    width: 2rem;
+    height: 2rem;
+    border-width: 3px;
+}
+
+/* Empty State */
+.calendar-empty {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.calendar-empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.calendar-empty-text {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+}
+
+.calendar-empty-subtext {
+    font-size: 0.875rem;
+    opacity: 0.7;
+}
+
+/* Print Styles */
+@media print {
+    .calendar-container {
+        border: 1px solid #000;
+        background: white;
+    }
+    
+    .calendar-header {
+        background: #f5f5f5 !important;
+        color: #000 !important;
+    }
+    
+    .time-header,
+    .time-slot {
+        background: #f5f5f5 !important;
+        color: #000 !important;
+    }
+    
+    .emp-color-1 { background: #f44336 !important; }
+    .emp-color-2 { background: #2196f3 !important; }
+    .emp-color-3 { background: #4caf50 !important; }
+    .emp-color-4 { background: #ff9800 !important; }
+    
+    .festa-cell {
+        background: #ffe066 !important;
+        color: #000 !important;
+    }
+    
+    .week-navigation,
+    .page-header .btn {
+        display: none !important;
+    }
+}
+
+/* Accessibility */
+.time-slot-cell:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: -2px;
+}
+
+.calendar-header .day-header:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: -2px;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .emp-color-1 { background: #000 !important; color: #fff !important; }
+    .emp-color-2 { background: #000080 !important; color: #fff !important; }
+    .emp-color-3 { background: #008000 !important; color: #fff !important; }
+    .emp-color-4 { background: #800080 !important; color: #fff !important; }
+    
+    .festa-cell {
+        background: #ffff00 !important;
+        color: #000 !important;
+        border: 2px solid #000 !important;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .time-slot-cell {
+        transition: none;
+    }
+    
+    .shift-tooltip {
+        transition: none;
+    }
+    
+    .spinner {
+        animation: none;
+    }
+}
+
+/* Custom Scrollbar for Calendar */
+.calendar-body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--card-bg);
+}
+
+.calendar-body::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.calendar-body::-webkit-scrollbar-track {
+    background: var(--card-bg);
+    border-radius: 6px;
+}
+
+.calendar-body::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 6px;
+    border: 2px solid var(--card-bg);
+}
+
+.calendar-body::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover);
+}
+
+.calendar-body::-webkit-scrollbar-corner {
+    background: var(--card-bg);
+}

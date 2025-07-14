@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario - Chiosco</title>
+    <link rel="stylesheet" href="style/02_components_1.css">
+    <link rel="stylesheet" href="style/02_components_2.css">
+    <link rel="stylesheet" href="style/03_layout_1.css">
+    <link rel="stylesheet" href="style/03_layout_2.css">
+    <link rel="stylesheet" href="style/04_calendar_1.css">
+    <link rel="stylesheet" href="style/04_calendar_2.css">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏖️ Chiosco</h2>
+                <p id="user-info">Dipendente</p>
+            </div>
+            
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html">📊 Dashboard</a></li>
+                <li><a href="calendar.html" class="active">📅 Calendario</a></li>
+                <li><a href="admin.html" id="admin-link" style="display: none;">⚙️ Admin</a></li>
+                <li><a href="#" id="logout-btn">🚪 Logout</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Calendario Settimanale</h1>
+                <div class="week-navigation">
+                    <button id="prev-week" class="btn btn-secondary">◀ Settimana Precedente</button>
+                    <span id="current-week"></span>
+                    <button id="next-week" class="btn btn-secondary">Settimana Successiva ▶</button>
+                </div>
+            </header>
+            
+            <div class="calendar-container">
+                <div class="calendar-header" id="calendar-header">
+                    <div class="time-header">Ore</div>
+                    <div class="employees-header" id="employees-header">
+                        <!-- Day containers with employee headers will be added here -->
+                    </div>
+                </div>
+                
+                <div class="calendar-body" id="calendar-body">
+                    <div class="time-label-column" id="time-labels">
+                        <!-- Time labels will be added here -->
+                    </div>
+                    <div class="shifts-grid" id="shifts-grid">
+                        <!-- Time rows with day slots will be added here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <script type="module" src="js/calendar.js"></script>
+</body>
+</html>

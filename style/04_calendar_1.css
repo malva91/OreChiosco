@@ -1,0 +1,363 @@
+/* Calendar Layout */
+.calendar-container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.calendar-header {
+    display: flex;
+    background-color: var(--secondary-color);
+    color: white;
+    border-bottom: 1px solid var(--border-color);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.calendar-header::-webkit-scrollbar {
+    display: none;
+}
+
+.time-header {
+    width: 80px;
+    min-width: 80px;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    background-color: var(--secondary-color);
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.employees-header {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+}
+
+.day-container {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border-color);
+}
+
+.day-container:last-child {
+    border-right: none;
+}
+
+.day-title {
+    padding: 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--secondary-color);
+    white-space: nowrap;
+    font-size: 0.8rem;
+}
+
+.day-title.today {
+    background-color: var(--warning-color);
+    color: var(--body-bg);
+}
+
+.day-name {
+    font-weight: 600;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.day-date {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+.employees-row {
+    display: flex;
+    flex-shrink: 0;
+}
+
+.employee-header {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    border-right: 1px solid var(--border-color);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.employee-header:last-child {
+    border-right: none;
+}
+
+.employee-name-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    display: inline-block;
+    white-space: nowrap;
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.calendar-body {
+    display: flex;
+    max-height: 600px;
+    overflow: auto;
+}
+
+.time-label-column {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+    background-color: var(--card-bg);
+    border-right: 1px solid var(--border-color);
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    flex-shrink: 0;
+}
+
+.time-slot {
+    height: 40px;
+    padding: 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--card-bg);
+}
+
+.time-slot:last-child {
+    border-bottom: none;
+}
+
+.shifts-grid {
+    flex: 1;
+    min-width: 0;
+}
+
+.time-row {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    height: 40px;
+}
+
+.time-row:last-child {
+    border-bottom: none;
+}
+
+.day-slots {
+    display: flex;
+    border-right: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.day-slots:last-child {
+    border-right: none;
+}
+
+.time-slot-cell {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    height: 40px;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.time-slot-cell:last-child {
+    border-right: none;
+}
+
+.time-slot-cell:hover {
+    background-color: rgba(100, 116, 139, 0.1);
+}
+
+/* Shift Cell Styles */
+.shift-start {
+    border-top: 2px solid rgba(255, 255, 255, 0.3);
+    font-weight: 600;
+}
+
+.shift-end {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    font-weight: 600;
+}
+
+.shift-mid {
+    opacity: 0.8;
+}
+
+/* Employee Color Classes */
+.emp-color-1 {
+    background-color: #f44336;
+    color: #fff;
+}
+
+.emp-color-2 {
+    background-color: #2196f3;
+    color: #fff;
+}
+
+.emp-color-3 {
+    background-color: #4caf50;
+    color: #fff;
+}
+
+.emp-color-4 {
+    background-color: #ff9800;
+    color: #fff;
+}
+
+.festa-cell {
+    background-color: #ffe066 !important;
+    color: #000 !important;
+    font-weight: bold;
+    position: relative;
+}
+
+/* Week Navigation */
+.week-navigation {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+#current-week {
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 200px;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .calendar-container {
+        margin: 0 -1rem;
+        border-radius: 0;
+    }
+    
+    .time-header,
+    .time-label-column {
+        width: 60px;
+        min-width: 60px;
+        max-width: 60px;
+    }
+    
+    .employee-header {
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.65rem;
+    }
+    
+    .employee-name-vertical {
+        font-size: 0.6rem;
+    }
+    
+    .time-slot-cell {
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+        height: 35px;
+        font-size: 0.7rem;
+    }
+    
+    .time-slot {
+        height: 35px;
+        padding: 0.25rem;
+        font-size: 0.7rem;
+    }
+    
+    .day-name {
+        font-size: 0.75rem;
+    }
+    
+    .day-date {
+        font-size: 0.7rem;
+    }
+    
+    .week-navigation {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .week-navigation .btn {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .time-header,
+    .time-label-column {
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+    }
+    
+    .employee-header {
+        width: 45px;
+        min-width: 45px;
+        max-width: 45px;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.6rem;
+    }
+    
+    .employee-name-vertical {
+        font-size: 0.55rem;
+    }
+    
+    .time-slot-cell {
+        width: 45px;
+        min-width: 45px;
+        max-width: 45px;
+        height: 30px;
+        font-size: 0.65rem;
+    }
+    
+    .time-slot {
+        height: 30px;
+        font-size: 0.65rem;
+    }
+    
+    .day-name {
+        font-size: 0.7rem;
+    }
+    
+    .day-date {
+        font-size: 0.65rem;
+    }
+    
+    .day-title {
+        padding: 0.25rem;
+    }
+}

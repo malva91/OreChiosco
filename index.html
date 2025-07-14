@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiosco - Login</title>
+    <link rel="stylesheet" href="style/02_components_1.css">
+    <link rel="stylesheet" href="style/02_components_2.css">
+    <link rel="stylesheet" href="style/03_layout_1.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>🏖️ Chiosco</h1>
+                <p>Sistema Gestione Ore</p>
+            </div>
+            
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">Utente</label>
+                    <select id="username" name="username" required>
+                        <option value="">Seleziona utente...</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <span class="btn-text">Accedi</span>
+                    <div class="spinner" style="display: none;"></div>
+                </button>
+                
+                <div id="error-message" class="error-message" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/auth.js"></script>
+</body>
+</html>
