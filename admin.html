@@ -32,6 +32,60 @@
                 <li><a href="#" id="logout-btn">🚪 Logout</a></li>
             </ul>
         </nav>
+        
+        <main class="main-content">
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="employees">👥 Dipendenti</button>
+                <button class="tab-btn" data-tab="shifts">📋 Turni</button>
+                <button class="tab-btn" data-tab="hours">⏰ Ore</button>
+                <button class="tab-btn" data-tab="hours-view">📊 Visualizza Ore</button>
+                <button class="tab-btn" data-tab="monthly-total">📈 Totali Mensili</button>
+            </div>
+            
+            <div class="tab-content">
+                <div id="employees-tab" class="tab-pane active"></div>
+                <div id="shifts-tab" class="tab-pane"></div>
+                <div id="hours-tab" class="tab-pane"></div>
+                <div id="hours-view-tab" class="tab-pane"></div>
+                <div id="monthly-total-tab" class="tab-pane"></div>
+            </div>
+        </main>
+        
+        <!-- Employee Modal -->
+        <div id="employee-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="modal-title">Aggiungi Dipendente</h2>
+                <form id="employee-form">
+                    <div class="form-group">
+                        <label for="employee-name">Nome:</label>
+                        <input type="text" id="employee-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-email">Email:</label>
+                        <input type="email" id="employee-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-role">Ruolo:</label>
+                        <select id="employee-role" required>
+                            <option value="">Seleziona ruolo</option>
+                            <option value="admin">Admin</option>
+                            <option value="employee">Dipendente</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit">Salva</button>
+                        <button type="button" class="cancel">Annulla</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Caricamento...</p>
     </div>
     
     <script type="module" src="js/admin.js"></script>
