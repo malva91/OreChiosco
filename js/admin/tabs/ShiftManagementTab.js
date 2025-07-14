@@ -28,7 +28,7 @@ export class ShiftManagementTab extends BaseTab {
         
         // Setup scroll sync for the shifts calendar
         setTimeout(() => {
-            this.calendarRenderer.setupScrollSync('shifts-calendar');
+            this.calendarRenderer.setupScrollSync('calendar');
         }, 100);
     }
 
@@ -115,9 +115,7 @@ export class ShiftManagementTab extends BaseTab {
                 </div>
                 
                 <div class="shifts-calendar-wrapper">
-                    <div id="shifts-calendar-container">
-                        <!-- Calendar will be rendered here -->
-                    </div>
+                    <!-- Calendar will be rendered here -->
                 </div>
             </div>
         `;
@@ -401,7 +399,7 @@ export class ShiftManagementTab extends BaseTab {
             
             // Setup scroll sync again
             setTimeout(() => {
-                this.calendarRenderer.setupScrollSync('shifts-calendar');
+                this.calendarRenderer.setupScrollSync('calendar');
             }, 100);
             
         } catch (error) {
@@ -456,14 +454,14 @@ export class ShiftManagementTab extends BaseTab {
         // Set CSS custom property for employee count
         document.documentElement.style.setProperty('--employees-count', this.employees.length);
         
-        // Get the container and render the calendar
-        const calendarContainer = document.getElementById('shifts-calendar-container');
-        if (calendarContainer) {
-            calendarContainer.innerHTML = this.calendarRenderer.renderCalendar(
+        // Get the wrapper and render the calendar directly
+        const calendarWrapper = document.querySelector('.shifts-calendar-wrapper');
+        if (calendarWrapper) {
+            calendarWrapper.innerHTML = this.calendarRenderer.renderCalendar(
                 this.currentWeekStart, 
                 this.employees, 
                 this.weekShifts, 
-                'shifts-calendar'
+                'calendar'
             );
         }
     }

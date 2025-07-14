@@ -167,16 +167,7 @@
 
 /* Shifts Calendar Wrapper */
 .shifts-calendar-wrapper {
-    /* Remove wrapper styling to let calendar handle its own styling */
-}
-
-.shifts-calendar-wrapper .calendar-container {
-    /* Ensure calendar container has proper styling */
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    overflow: hidden;
-    max-width: 100%;
+    /* Wrapper inherits calendar styling */
 }
 
 /* Calendar Legend Improvements */
