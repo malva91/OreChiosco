@@ -304,12 +304,7 @@ class FirebaseAPI {
     // Authentication helper
     async validateCredentials(username, password) {
         try {
-            // Check admin credentials
-            if (username === 'admin' && password === 'admin1234') {
-                return { username: 'admin', role: 'admin' };
-            }
-
-            // Check employee credentials
+            // Check credentials against database
             const employee = await this.getEmployee(username);
             if (employee && employee.password === password) {
                 return { username, role: employee.role };

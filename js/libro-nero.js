@@ -58,14 +58,6 @@ class LibroNeroManager {
             this.addTransaction();
         });
 
-        // Quick amount buttons
-        document.querySelectorAll('.quick-amount-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const amount = parseFloat(e.target.dataset.amount);
-                this.addQuickTransaction(amount);
-            });
-        });
-
         // Clear all transactions
         document.getElementById('clear-all-transactions').addEventListener('click', () => {
             this.clearAllTransactions();
@@ -334,16 +326,6 @@ class LibroNeroManager {
             return;
         }
 
-        await this.saveTransaction(amount, description);
-    }
-
-    async addQuickTransaction(amount) {
-        if (!this.selectedClientId) {
-            ErrorHandler.showError('Seleziona prima un cliente');
-            return;
-        }
-
-        const description = amount > 0 ? 'Ricarica rapida' : 'Consumazione rapida';
         await this.saveTransaction(amount, description);
     }
 

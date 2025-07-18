@@ -22,23 +22,17 @@ class AuthManager {
 
     async loadEmployees() {
         try {
-            const employees = await FirebaseAPI.getEmployees();
+            const employeesData = await FirebaseAPI.getEmployees();
             const usernameSelect = document.getElementById('username');
             
             // Clear existing options except first one
             usernameSelect.innerHTML = '<option value="">Seleziona utente...</option>';
             
-            // Add admin option
-            const adminOption = document.createElement('option');
-            adminOption.value = 'admin';
-            adminOption.textContent = 'Admin';
-            usernameSelect.appendChild(adminOption);
-            
-            // Add employee options
-            Object.keys(employees).forEach(username => {
+            // Add all users from database (including admin if exists)
+            Object.keys(employeesData).forEach(username => {
                 const option = document.createElement('option');
                 option.value = username;
-                option.textContent = username;
+                option.textContent = employeesData[username].role === 'admin' ? `${username} (Admin)` : username;
                 usernameSelect.appendChild(option);
             });
         } catch (error) {
