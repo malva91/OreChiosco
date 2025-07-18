@@ -107,9 +107,17 @@ class LibroNeroManager {
         this.showLoading(true);
         
         try {
-            // Get all clients from Firebase
-            const clientsData = await this.getAllClients();
-            await this.renderClients(clientsData);
+            const clients = await FirebaseAPI.getLibroNeroClients();
+            
+            // Calculate balances for each client
+            const clientsWithBalances = await Promise.all(
+                clients.map(async (client) => {
+                    const balance = await this.calculateClientBalance(client.id);
+                    return { ...client, balance };
+                })
+            );
+            
+            await this.renderClients(clientsWithBalances);
         } catch (error) {
             console.error('Error loading clients:', error);
             ErrorHandler.showError('Errore nel caricamento dei clienti');
@@ -118,39 +126,13 @@ class LibroNeroManager {
         }
     }
 
-    async getAllClients() {
-        try {
-            // Use a simple structure: clients collection with subcollection transactions
-            const clientsRef = await FirebaseAPI.db.collection('libro_nero_clients').get();
-            const clients = {};
-            
-            for (const doc of clientsRef.docs) {
-                const clientData = doc.data();
-                const balance = await this.calculateClientBalance(doc.id);
-                clients[doc.id] = {
-                    ...clientData,
-                    balance: balance
-                };
-            }
-            
-            return clients;
-        } catch (error) {
-            console.error('Error getting clients:', error);
-            return {};
-        }
-    }
 
     async calculateClientBalance(clientId) {
         try {
-            const transactionsRef = await FirebaseAPI.db
-                .collection('libro_nero_clients')
-                .doc(clientId)
-                .collection('transactions')
-                .get();
+            const transactions = await FirebaseAPI.getClientTransactions(clientId);
             
             let balance = 0;
-            transactionsRef.forEach(doc => {
-                const transaction = doc.data();
+            transactions.forEach(transaction => {
                 balance += transaction.amount || 0;
             });
             
@@ -161,10 +143,10 @@ class LibroNeroManager {
         }
     }
 
-    async renderClients(clientsData) {
+    async renderClients(clients) {
         const clientsList = document.getElementById('clients-list');
         
-        if (Object.keys(clientsData).length === 0) {
+        if (clients.length === 0) {
             clientsList.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">👥</div>
@@ -175,13 +157,13 @@ class LibroNeroManager {
         }
 
         // Sort clients by name
-        const sortedClients = Object.entries(clientsData).sort(([,a], [,b]) => 
+        const sortedClients = clients.sort((a, b) => 
             a.name.localeCompare(b.name)
         );
 
-        clientsList.innerHTML = sortedClients.map(([clientId, client]) => `
-            <div class="client-item ${clientId === this.selectedClientId ? 'active' : ''}" 
-                 data-client-id="${clientId}" onclick="libroNero.selectClient('${clientId}')">
+        clientsList.innerHTML = sortedClients.map(client => `
+            <div class="client-item ${client.id === this.selectedClientId ? 'active' : ''}" 
+                 data-client-id="${client.id}" onclick="libroNero.selectClient('${client.id}')">
                 <div class="client-name">${SecurityUtils.sanitizeHTML(client.name)}</div>
                 <div class="client-balance-preview ${client.balance > 0 ? 'positive' : client.balance < 0 ? 'negative' : ''}">
                     €${client.balance.toFixed(2)}
@@ -203,8 +185,8 @@ class LibroNeroManager {
 
         try {
             // Check if client already exists
-            const existingClients = await this.getAllClients();
-            const nameExists = Object.values(existingClients).some(client => 
+            const existingClients = await FirebaseAPI.getLibroNeroClients();
+            const nameExists = existingClients.some(client => 
                 client.name.toLowerCase() === name.toLowerCase()
             );
 
@@ -213,9 +195,7 @@ class LibroNeroManager {
                 return;
             }
 
-            // Add client to Firebase
-            const clientRef = FirebaseAPI.db.collection('libro_nero_clients').doc();
-            await clientRef.set({
+            await FirebaseAPI.createLibroNeroClient({
                 name: name,
                 createdAt: new Date(),
                 createdBy: this.currentUser.username
@@ -255,12 +235,10 @@ class LibroNeroManager {
         clientDetails.style.display = 'flex';
         
         try {
-            // Get client data
-            const clientDoc = await FirebaseAPI.db.collection('libro_nero_clients').doc(clientId).get();
+            const client = await FirebaseAPI.getLibroNeroClient(clientId);
             
-            if (clientDoc.exists) {
-                const clientData = clientDoc.data();
-                document.getElementById('selected-client-name').textContent = clientData.name;
+            if (client) {
+                document.getElementById('selected-client-name').textContent = client.name;
                 await this.updateClientBalance(clientId);
             }
         } catch (error) {
@@ -283,14 +261,9 @@ class LibroNeroManager {
 
     async loadTransactions(clientId) {
         try {
-            const transactionsRef = await FirebaseAPI.db
-                .collection('libro_nero_clients')
-                .doc(clientId)
-                .collection('transactions')
-                .orderBy('timestamp', 'desc')
-                .get();
+            const transactions = await FirebaseAPI.getClientTransactions(clientId);
             
-            this.renderTransactions(transactionsRef.docs, clientId);
+            this.renderTransactions(transactions, clientId);
             
         } catch (error) {
             console.error('Error loading transactions:', error);
@@ -298,10 +271,10 @@ class LibroNeroManager {
         }
     }
 
-    renderTransactions(transactionDocs, clientId) {
+    renderTransactions(transactions, clientId) {
         const transactionsList = document.getElementById('transactions-list');
         
-        if (transactionDocs.length === 0) {
+        if (transactions.length === 0) {
             transactionsList.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">💰</div>
@@ -311,10 +284,10 @@ class LibroNeroManager {
             return;
         }
 
-        transactionsList.innerHTML = transactionDocs.map(doc => {
-            const transaction = doc.data();
+        transactionsList.innerHTML = transactions.map(transaction => {
             const amount = transaction.amount || 0;
-            const date = transaction.timestamp ? transaction.timestamp.toDate() : new Date();
+            const date = transaction.timestamp && transaction.timestamp.toDate ? 
+                transaction.timestamp.toDate() : new Date(transaction.timestamp);
             
             return `
                 <div class="transaction-item">
@@ -385,11 +358,7 @@ class LibroNeroManager {
                 addedBy: this.currentUser.username
             };
 
-            await FirebaseAPI.db
-                .collection('libro_nero_clients')
-                .doc(this.selectedClientId)
-                .collection('transactions')
-                .add(transactionData);
+            await FirebaseAPI.addClientTransaction(this.selectedClientId, transactionData);
             
             // Clear form
             document.getElementById('transaction-amount').value = '';
@@ -418,12 +387,7 @@ class LibroNeroManager {
                 this.showLoading(true);
                 
                 try {
-                    await FirebaseAPI.db
-                        .collection('libro_nero_clients')
-                        .doc(clientId)
-                        .collection('transactions')
-                        .doc(transactionId)
-                        .delete();
+                    await FirebaseAPI.deleteClientTransaction(clientId, transactionId);
                     
                     ErrorHandler.showSuccess('Transazione eliminata');
                     
@@ -457,15 +421,7 @@ class LibroNeroManager {
                 this.showLoading(true);
                 
                 try {
-                    const transactionsRef = await FirebaseAPI.db
-                        .collection('libro_nero_clients')
-                        .doc(this.selectedClientId)
-                        .collection('transactions')
-                        .get();
-                    
-                    // Delete all transactions
-                    const deletePromises = transactionsRef.docs.map(doc => doc.ref.delete());
-                    await Promise.all(deletePromises);
+                    await FirebaseAPI.clearAllClientTransactions(this.selectedClientId);
                     
                     ErrorHandler.showSuccess('Tutte le transazioni sono state eliminate');
                     
@@ -498,21 +454,7 @@ class LibroNeroManager {
                 this.showLoading(true);
                 
                 try {
-                    // Delete all transactions first
-                    const transactionsRef = await FirebaseAPI.db
-                        .collection('libro_nero_clients')
-                        .doc(this.selectedClientId)
-                        .collection('transactions')
-                        .get();
-                    
-                    const deletePromises = transactionsRef.docs.map(doc => doc.ref.delete());
-                    await Promise.all(deletePromises);
-                    
-                    // Delete client
-                    await FirebaseAPI.db
-                        .collection('libro_nero_clients')
-                        .doc(this.selectedClientId)
-                        .delete();
+                    await FirebaseAPI.deleteLibroNeroClientWithTransactions(this.selectedClientId);
                     
                     ErrorHandler.showSuccess('Cliente eliminato con successo');
                     
@@ -542,14 +484,9 @@ class LibroNeroManager {
 
         try {
             const clientName = document.getElementById('selected-client-name').textContent;
-            const transactionsRef = await FirebaseAPI.db
-                .collection('libro_nero_clients')
-                .doc(this.selectedClientId)
-                .collection('transactions')
-                .orderBy('timestamp', 'desc')
-                .get();
+            const transactions = await FirebaseAPI.getClientTransactions(this.selectedClientId);
             
-            if (transactionsRef.empty) {
+            if (transactions.length === 0) {
                 ErrorHandler.showError('Nessuna transazione da esportare');
                 return;
             }
@@ -559,9 +496,9 @@ class LibroNeroManager {
             csvContent += `Esportato il: ${new Date().toLocaleDateString('it-IT')}\n\n`;
             csvContent += 'Data,Ora,Importo,Descrizione,Inserito da\n';
             
-            transactionsRef.forEach(doc => {
-                const transaction = doc.data();
-                const date = transaction.timestamp ? transaction.timestamp.toDate() : new Date();
+            transactions.forEach(transaction => {
+                const date = transaction.timestamp && transaction.timestamp.toDate ? 
+                    transaction.timestamp.toDate() : new Date(transaction.timestamp);
                 const amount = transaction.amount || 0;
                 const description = transaction.description || '';
                 const addedBy = transaction.addedBy || 'Sconosciuto';

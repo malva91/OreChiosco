@@ -11,7 +11,8 @@ import {
     query, 
     orderBy, 
     where,
-    onSnapshot
+    onSnapshot,
+    addDoc
 } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -186,9 +187,12 @@ class FirebaseAPI {
         try {
             const clientsRef = collection(this.db, 'libro_nero_clients');
             const snapshot = await getDocs(clientsRef);
-            const clients = {};
+            const clients = [];
             snapshot.forEach(doc => {
-                clients[doc.id] = doc.data();
+                clients.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
             });
             return clients;
         } catch (error) {
@@ -197,6 +201,16 @@ class FirebaseAPI {
         }
     }
 
+    async getLibroNeroClient(clientId) {
+        try {
+            const clientRef = doc(this.db, 'libro_nero_clients', clientId);
+            const snapshot = await getDoc(clientRef);
+            return snapshot.exists() ? { id: clientId, ...snapshot.data() } : null;
+        } catch (error) {
+            console.error('Error getting libro nero client:', error);
+            throw error;
+        }
+    }
     async createLibroNeroClient(clientData) {
         try {
             const clientsRef = collection(this.db, 'libro_nero_clients');
@@ -219,6 +233,23 @@ class FirebaseAPI {
         }
     }
 
+    async deleteLibroNeroClientWithTransactions(clientId) {
+        try {
+            // First delete all transactions
+            const transactions = await this.getClientTransactions(clientId);
+            const deletePromises = transactions.map(transaction => 
+                this.deleteClientTransaction(clientId, transaction.id)
+            );
+            await Promise.all(deletePromises);
+            
+            // Then delete the client
+            await this.deleteLibroNeroClient(clientId);
+            return true;
+        } catch (error) {
+            console.error('Error deleting libro nero client with transactions:', error);
+            throw error;
+        }
+    }
     async getClientTransactions(clientId) {
         try {
             const transactionsRef = collection(this.db, 'libro_nero_clients', clientId, 'transactions');
@@ -257,6 +288,19 @@ class FirebaseAPI {
         }
     }
 
+    async clearAllClientTransactions(clientId) {
+        try {
+            const transactions = await this.getClientTransactions(clientId);
+            const deletePromises = transactions.map(transaction => 
+                this.deleteClientTransaction(clientId, transaction.id)
+            );
+            await Promise.all(deletePromises);
+            return true;
+        } catch (error) {
+            console.error('Error clearing all client transactions:', error);
+            throw error;
+        }
+    }
     // Authentication helper
     async validateCredentials(username, password) {
         try {
