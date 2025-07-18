@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Crediti Bar</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>Gestione Crediti Bar</h1>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar - Lista Clienti -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Clienti</h2>
+                <form id="add-client-form" class="add-client-form">
+                    <input 
+                        type="text" 
+                        id="client-name" 
+                        placeholder="Nome cliente" 
+                        required
+                        autocomplete="off"
+                    >
+                    <button type="submit">Aggiungi</button>
+                </form>
+            </div>
+            <div class="clients-list" id="clients-list">
+                <div class="loading">Caricamento clienti...</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div id="no-client-selected" class="no-selection">
+                <h2>Seleziona un cliente dalla lista</h2>
+                <p>Scegli un cliente dalla sidebar per visualizzare il saldo e lo storico delle transazioni.</p>
+            </div>
+
+            <div id="client-details" class="client-details" style="display: none;">
+                <div class="client-header">
+                    <h2 id="selected-client-name">Cliente</h2>
+                    <div class="balance-container">
+                        <span class="balance-label">Saldo:</span>
+                        <span id="client-balance" class="balance">€0.00</span>
+                    </div>
+                </div>
+
+                <!-- Form Aggiunta Transazione -->
+                <div class="transaction-form-container">
+                    <h3>Nuova Transazione</h3>
+                    <form id="add-transaction-form" class="transaction-form">
+                        <div class="form-group">
+                            <input 
+                                type="number" 
+                                id="transaction-amount" 
+                                placeholder="Importo (+ credito, - spesa)" 
+                                step="0.01"
+                                required
+                            >
+                            <button type="submit">Aggiungi Transazione</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Azioni Cliente -->
+                <div class="client-actions">
+                    <button id="clear-all-transactions" class="btn-danger">
+                        Azzera Tutto
+                    </button>
+                </div>
+
+                <!-- Storico Transazioni -->
+                <div class="transactions-container">
+                    <h3>Storico Transazioni</h3>
+                    <div id="transactions-list" class="transactions-list">
+                        <div class="loading">Caricamento transazioni...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Messaggi di Errore/Successo -->
+    <div id="message-container" class="message-container"></div>
+
+    <!-- Firebase e App Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBYHTG6eir-gtl5m_AGEx6vavxiWhhf_2I",
+            authDomain: "orechiosco.firebaseapp.com",
+            projectId: "orechiosco",
+            storageBucket: "orechiosco.firebasestorage.app",
+            messagingSenderId: "606103127337",
+            appId: "1:606103127337:web:968c59504d5eb2fca6e338",
+            measurementId: "G-0K1GRHFN03"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        // Rende Firebase disponibile globalmente per app.js
+        window.firebaseApp = { db, collection, addDoc, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, getDocs };
+    </script>
+    <script src="js/app.js"></script>
+</body>
+</html>
