@@ -308,7 +308,7 @@ class LibroNeroManager {
                         </div>
                     </div>
                     <div class="transaction-actions">
-                        <button class="delete-transaction" onclick="libroNero.deleteTransaction('${clientId}', '${doc.id}')">
+                        <button class="delete-transaction" onclick="libroNero.deleteTransaction('${clientId}', '${transaction.id}')">
                             🗑️
                         </button>
                     </div>
