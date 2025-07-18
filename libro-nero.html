@@ -35,313 +35,127 @@
         </nav>
         
         <main class="main-content">
-            <header class="page-header">
-                <div class="header-content">
-                    <h1>📖 Libro Nero</h1>
-                    <p class="header-subtitle">Gestione crediti e debiti clienti</p>
-                </div>
-                <div class="header-stats" id="header-stats">
-                    <div class="stat-item">
-                        <span class="stat-value" id="total-clients">0</span>
-                        <span class="stat-label">Clienti</span>
+            <!-- Header semplice -->
+            <div class="simple-header">
+                <h1>📖 Libro Nero</h1>
+                <div class="totals-summary">
+                    <div class="total-item">
+                        <span class="total-label">Clienti:</span>
+                        <span class="total-value" id="total-clients">0</span>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-value positive" id="total-credits">€0.00</span>
-                        <span class="stat-label">Crediti</span>
+                    <div class="total-item">
+                        <span class="total-label">Crediti:</span>
+                        <span class="total-value positive" id="total-credits">€0.00</span>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-value negative" id="total-debts">€0.00</span>
-                        <span class="stat-label">Debiti</span>
+                    <div class="total-item">
+                        <span class="total-label">Debiti:</span>
+                        <span class="total-value negative" id="total-debts">€0.00</span>
                     </div>
                 </div>
-            </header>
-            
-            <div class="libro-nero-layout">
-                <!-- Sidebar Clienti -->
-                <aside class="clients-panel">
-                    <div class="panel-header">
-                        <div class="header-title">
-                            <h3>👥 Clienti</h3>
-                            <span class="clients-count" id="clients-count">0</span>
+            </div>
+
+            <!-- Lista Clienti -->
+            <div class="clients-section">
+                <div class="section-header">
+                    <h3>Clienti</h3>
+                    <button class="btn-add" id="show-add-client">+</button>
+                </div>
+                
+                <!-- Form aggiungi cliente (nascosto inizialmente) -->
+                <div class="add-client-form" id="add-client-form-container" style="display: none;">
+                    <form id="add-client-form">
+                        <input 
+                            type="text" 
+                            id="client-name" 
+                            placeholder="Nome cliente" 
+                            required
+                            maxlength="50"
+                        >
+                        <div class="form-buttons">
+                            <button type="submit" class="btn-primary">Aggiungi</button>
+                            <button type="button" class="btn-cancel" id="cancel-add-client">Annulla</button>
                         </div>
-                        <div class="panel-actions">
-                            <button class="btn btn-sm btn-secondary" id="refresh-clients" title="Aggiorna lista">
-                                🔄
-                            </button>
+                    </form>
+                </div>
+                
+                <div class="clients-list" id="clients-list">
+                    <div class="loading">Caricamento...</div>
+                </div>
+            </div>
+
+            <!-- Dettagli Cliente (nascosto inizialmente) -->
+            <div class="client-details" id="client-details" style="display: none;">
+                <div class="client-header">
+                    <button class="back-btn" id="back-to-clients">← Indietro</button>
+                    <h2 id="selected-client-name">Cliente</h2>
+                    <div class="client-balance" id="client-balance">€0.00</div>
+                </div>
+
+                <!-- Form Transazione -->
+                <div class="transaction-section">
+                    <h3>Nuova Transazione</h3>
+                    <form id="add-transaction-form">
+                        <div class="amount-buttons">
+                            <button type="button" class="amount-btn negative" data-amount="-5">-5€</button>
+                            <button type="button" class="amount-btn negative" data-amount="-10">-10€</button>
+                            <button type="button" class="amount-btn negative" data-amount="-20">-20€</button>
+                            <button type="button" class="amount-btn positive" data-amount="10">+10€</button>
+                            <button type="button" class="amount-btn positive" data-amount="20">+20€</button>
+                            <button type="button" class="amount-btn positive" data-amount="50">+50€</button>
                         </div>
+                        
+                        <input 
+                            type="number" 
+                            id="transaction-amount" 
+                            placeholder="Importo personalizzato" 
+                            step="0.01"
+                        >
+                        
+                        <input 
+                            type="text" 
+                            id="transaction-description" 
+                            placeholder="Descrizione (opzionale)"
+                            maxlength="100"
+                        >
+                        
+                        <button type="submit" class="btn-primary btn-large">Registra</button>
+                    </form>
+                </div>
+
+                <!-- Storico Transazioni -->
+                <div class="transactions-section">
+                    <div class="section-header">
+                        <h3>Transazioni</h3>
+                        <button class="btn-danger btn-small" id="clear-all-transactions">Azzera</button>
                     </div>
                     
-                    <div class="add-client-section">
-                        <form id="add-client-form" class="quick-add-form">
-                            <div class="input-group">
-                                <input 
-                                    type="text" 
-                                    id="client-name" 
-                                    placeholder="Nome nuovo cliente..." 
-                                    required
-                                    autocomplete="off"
-                                    maxlength="50"
-                                    inputmode="text"
-                                    class="form-input"
-                                >
-                                <button type="submit" class="btn btn-primary">
-                                    <span class="btn-icon">➕</span>
-                                    <span class="btn-text">Aggiungi</span>
-                                </button>
-                            </div>
-                        </form>
+                    <div class="transactions-list" id="transactions-list">
+                        <div class="loading">Caricamento...</div>
                     </div>
-                    
-                    <div class="clients-search">
-                        <div class="search-input-group">
-                            <input 
-                                type="text" 
-                                id="clients-search" 
-                                placeholder="Cerca cliente..." 
-                                class="search-input"
-                            >
-                            <span class="search-icon">🔍</span>
-                        </div>
-                    </div>
-                    
-                    <div class="clients-list-container">
-                        <div class="clients-list" id="clients-list">
-                            <div class="loading-state">
-                                <div class="spinner"></div>
-                                <p>Caricamento clienti...</p>
-                            </div>
-                        </div>
-                    </div>
-                </aside>
+                </div>
 
-                <!-- Main Content Area -->
-                <div class="main-panel">
-                    <!-- No Selection State -->
-                    <div id="no-client-selected" class="empty-state-panel">
-                        <div class="empty-state-content">
-                            <div class="empty-state-icon">👤</div>
-                            <h2>Seleziona un cliente</h2>
-                            <p>Scegli un cliente dalla lista per visualizzare il saldo e gestire le transazioni.</p>
-                            <div class="empty-state-actions">
-                                <button class="btn btn-primary" onclick="document.getElementById('client-name').focus()">
-                                    ➕ Aggiungi primo cliente
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Client Details Panel -->
-                    <div id="client-details" class="client-panel" style="display: none;">
-                        <!-- Client Header -->
-                        <div class="client-header-card">
-                            <div class="client-info-section">
-                                <div class="client-avatar">
-                                    <span class="avatar-text" id="client-avatar">?</span>
-                                </div>
-                                <div class="client-details-info">
-                                    <h2 id="selected-client-name" class="client-name">Cliente</h2>
-                                    <div class="client-meta">
-                                        <span class="client-id">ID: <span id="client-id">-</span></span>
-                                        <span class="client-created">Creato: <span id="client-created">-</span></span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="balance-section">
-                                <div class="balance-card">
-                                    <div class="balance-label">Saldo Attuale</div>
-                                    <div id="client-balance" class="balance-amount">€0.00</div>
-                                    <div class="balance-trend" id="balance-trend">
-                                        <span class="trend-icon">📈</span>
-                                        <span class="trend-text">Stabile</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="client-actions-section">
-                                <div class="action-buttons">
-                                    <button id="quick-credit-btn" class="btn btn-success btn-sm">
-                                        💰 Credito Rapido
-                                    </button>
-                                    <button id="quick-debit-btn" class="btn btn-warning btn-sm">
-                                        💸 Spesa Rapida
-                                    </button>
-                                    <button id="client-settings-btn" class="btn btn-secondary btn-sm">
-                                        ⚙️
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Transaction Form -->
-                        <div class="transaction-form-card">
-                            <div class="card-header">
-                                <h3>💳 Nuova Transazione</h3>
-                                <div class="form-toggle">
-                                    <button class="toggle-btn active" data-type="simple">Semplice</button>
-                                    <button class="toggle-btn" data-type="advanced">Avanzata</button>
-                                </div>
-                            </div>
-                            
-                            <form id="add-transaction-form" class="transaction-form">
-                                <div class="form-layout" id="simple-form">
-                                    <div class="amount-input-section">
-                                        <label for="transaction-amount" class="form-label">Importo</label>
-                                        <div class="amount-input-group">
-                                            <button type="button" class="amount-btn negative" data-amount="-5">-5€</button>
-                                            <button type="button" class="amount-btn negative" data-amount="-10">-10€</button>
-                                            <input 
-                                                type="number" 
-                                                id="transaction-amount" 
-                                                placeholder="0.00" 
-                                                step="0.01"
-                                                inputmode="decimal"
-                                                required
-                                                class="amount-input"
-                                            >
-                                            <button type="button" class="amount-btn positive" data-amount="10">+10€</button>
-                                            <button type="button" class="amount-btn positive" data-amount="20">+20€</button>
-                                        </div>
-                                        <div class="amount-type-indicator" id="amount-type">
-                                            <span class="type-text">Inserisci importo</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="description-section">
-                                        <label for="transaction-description" class="form-label">Descrizione (opzionale)</label>
-                                        <input 
-                                            type="text" 
-                                            id="transaction-description" 
-                                            placeholder="Es: Ricarica, Consumazione, Aperitivo..."
-                                            maxlength="100"
-                                            inputmode="text"
-                                            class="form-input"
-                                        >
-                                    </div>
-                                </div>
-                                
-                                <div class="form-actions">
-                                    <button type="submit" class="btn btn-primary btn-large">
-                                        <span class="btn-icon">💾</span>
-                                        <span class="btn-text">Registra Transazione</span>
-                                    </button>
-                                    <button type="button" id="clear-form-btn" class="btn btn-secondary">
-                                        🗑️ Pulisci
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
-                        <!-- Transactions History -->
-                        <div class="transactions-card">
-                            <div class="card-header">
-                                <div class="header-left">
-                                    <h3>📋 Storico Transazioni</h3>
-                                    <span class="transactions-count" id="transactions-count">0 transazioni</span>
-                                </div>
-                                <div class="header-actions">
-                                    <div class="filter-buttons">
-                                        <button class="filter-btn active" data-filter="all">Tutte</button>
-                                        <button class="filter-btn" data-filter="positive">Crediti</button>
-                                        <button class="filter-btn" data-filter="negative">Spese</button>
-                                    </div>
-                                    <div class="action-buttons">
-                                        <button id="export-transactions" class="btn btn-sm btn-secondary">
-                                            📊 Esporta
-                                        </button>
-                                        <button id="clear-all-transactions" class="btn btn-sm btn-danger">
-                                            🗑️ Azzera
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="transactions-container">
-                                <div id="transactions-list" class="transactions-list">
-                                    <div class="loading-state">
-                                        <div class="spinner"></div>
-                                        <p>Caricamento transazioni...</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="transactions-summary" id="transactions-summary">
-                                    <div class="summary-stats">
-                                        <div class="stat-item">
-                                            <span class="stat-label">Totale Crediti:</span>
-                                            <span class="stat-value positive" id="client-total-credits">€0.00</span>
-                                        </div>
-                                        <div class="stat-item">
-                                            <span class="stat-label">Totale Spese:</span>
-                                            <span class="stat-value negative" id="client-total-debts">€0.00</span>
-                                        </div>
-                                        <div class="stat-item">
-                                            <span class="stat-label">Ultima Transazione:</span>
-                                            <span class="stat-value" id="last-transaction-date">-</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Azioni Cliente -->
+                <div class="client-actions">
+                    <button class="btn-danger" id="delete-client-btn">Elimina Cliente</button>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modals -->
+    <!-- Modal Conferma -->
     <div id="confirm-modal" class="modal" style="display: none;">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="confirm-title">Conferma</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p id="confirm-message">Sei sicuro?</p>
-            </div>
-            <div class="modal-footer">
-                <button id="confirm-ok-btn" class="btn btn-danger">Conferma</button>
-                <button class="btn btn-secondary modal-close">Annulla</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="client-settings-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>⚙️ Impostazioni Cliente</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="settings-section">
-                    <h4>Informazioni Cliente</h4>
-                    <div class="form-group">
-                        <label>Nome Cliente</label>
-                        <input type="text" id="edit-client-name" class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label>Note</label>
-                        <textarea id="client-notes" class="form-input" rows="3" placeholder="Note aggiuntive sul cliente..."></textarea>
-                    </div>
-                </div>
-                <div class="settings-section danger-zone">
-                    <h4>Zona Pericolosa</h4>
-                    <button id="delete-client-btn" class="btn btn-danger">
-                        🗑️ Elimina Cliente
-                    </button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="save-client-settings" class="btn btn-primary">Salva</button>
-                <button class="btn btn-secondary modal-close">Annulla</button>
+            <h3 id="confirm-title">Conferma</h3>
+            <p id="confirm-message">Sei sicuro?</p>
+            <div class="modal-buttons">
+                <button id="confirm-ok-btn" class="btn-danger">Conferma</button>
+                <button class="btn-cancel modal-close">Annulla</button>
             </div>
         </div>
     </div>
 
     <div id="loading-overlay" class="loading-overlay" style="display: none;">
-        <div class="loading-content">
-            <div class="spinner large"></div>
-            <p>Caricamento...</p>
-        </div>
+        <div class="spinner"></div>
     </div>
 
     <script type="module" src="js/libro-nero.js"></script>
