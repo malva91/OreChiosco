@@ -170,6 +170,13 @@ class LibroNeroManager {
         
         if (!name || name.length < 2) {
             ErrorHandler.showError('Inserisci un nome valido (almeno 2 caratteri)');
+            nameInput.focus();
+            return;
+        }
+        
+        if (name.length > 50) {
+            ErrorHandler.showError('Il nome non può superare i 50 caratteri');
+            nameInput.focus();
             return;
         }
 
@@ -184,6 +191,7 @@ class LibroNeroManager {
 
             if (nameExists) {
                 ErrorHandler.showError('Esiste già un cliente con questo nome');
+                nameInput.focus();
                 return;
             }
 
@@ -196,6 +204,11 @@ class LibroNeroManager {
             nameInput.value = '';
             ErrorHandler.showSuccess('Cliente aggiunto con successo');
             await this.loadClients();
+            
+            // On mobile, blur the input to hide keyboard
+            if (window.innerWidth <= 768) {
+                nameInput.blur();
+            }
             
         } catch (error) {
             console.error('Error adding client:', error);
@@ -212,11 +225,28 @@ class LibroNeroManager {
         document.querySelectorAll('.client-item').forEach(item => {
             item.classList.remove('active');
         });
-        document.querySelector(`[data-client-id="${clientId}"]`).classList.add('active');
+        const selectedItem = document.querySelector(`[data-client-id="${clientId}"]`);
+        if (selectedItem) {
+            selectedItem.classList.add('active');
+            // Scroll into view on mobile
+            if (window.innerWidth <= 768) {
+                selectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
         
         // Show client details
         await this.showClientDetails(clientId);
         await this.loadTransactions(clientId);
+        
+        // On mobile, scroll to client details after selection
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                const clientDetails = document.getElementById('client-details');
+                if (clientDetails) {
+                    clientDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 300);
+        }
     }
 
     async showClientDetails(clientId) {
@@ -323,6 +353,14 @@ class LibroNeroManager {
         
         if (isNaN(amount) || amount === 0) {
             ErrorHandler.showError('Inserisci un importo valido');
+            amountInput.focus();
+            return;
+        }
+        
+        // Validate amount range
+        if (Math.abs(amount) > 9999.99) {
+            ErrorHandler.showError('L\'importo non può superare €9999.99');
+            amountInput.focus();
             return;
         }
 
@@ -345,6 +383,12 @@ class LibroNeroManager {
             // Clear form
             document.getElementById('transaction-amount').value = '';
             document.getElementById('transaction-description').value = '';
+            
+            // On mobile, blur inputs to hide keyboard
+            if (window.innerWidth <= 768) {
+                document.getElementById('transaction-amount').blur();
+                document.getElementById('transaction-description').blur();
+            }
             
             ErrorHandler.showSuccess('Transazione aggiunta con successo');
             
@@ -536,11 +580,34 @@ class LibroNeroManager {
     showLoading(show) {
         const overlay = document.getElementById('loading-overlay');
         overlay.style.display = show ? 'flex' : 'none';
+        
+        // Prevent scrolling when loading
+        if (show) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
     }
 
     logout() {
         localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
+    }
+    
+    // Handle orientation change
+    handleOrientationChange() {
+        // Force a small delay to allow for orientation change to complete
+        setTimeout(() => {
+            // Trigger a resize event to recalculate layouts
+            window.dispatchEvent(new Event('resize'));
+        }, 100);
+    }
+    
+    // Handle viewport changes
+    handleViewportChange() {
+        // Update CSS custom properties for dynamic sizing
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
     }
 
     // Cleanup when leaving page
@@ -556,6 +623,24 @@ class LibroNeroManager {
 
 // Initialize and make globally available
 window.libroNero = new LibroNeroManager();
+
+// Handle orientation and viewport changes
+window.addEventListener('orientationchange', () => {
+    if (window.libroNero) {
+        window.libroNero.handleOrientationChange();
+    }
+});
+
+window.addEventListener('resize', () => {
+    if (window.libroNero) {
+        window.libroNero.handleViewportChange();
+    }
+});
+
+// Initial viewport setup
+if (window.libroNero) {
+    window.libroNero.handleViewportChange();
+}
 
 // Cleanup on page unload
 window.addEventListener('beforeunload', () => {

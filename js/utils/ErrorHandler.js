@@ -55,13 +55,19 @@ export class ErrorHandler {
         const okBtn = alertDiv.querySelector('.alert-ok-btn');
         okBtn.addEventListener('click', () => {
             container.removeChild(alertDiv);
+            // Re-enable body scroll
+            document.body.style.overflow = '';
         });
+        
+        // Prevent body scroll when alert is shown
+        document.body.style.overflow = 'hidden';
         
         // Auto-remove after 5 seconds for success messages
         if (type === 'success') {
             setTimeout(() => {
                 if (container.contains(alertDiv)) {
                     container.removeChild(alertDiv);
+                    document.body.style.overflow = '';
                 }
             }, 5000);
         }
@@ -70,6 +76,7 @@ export class ErrorHandler {
         const handleEscape = (e) => {
             if (e.key === 'Escape' && container.contains(alertDiv)) {
                 container.removeChild(alertDiv);
+                document.body.style.overflow = '';
                 document.removeEventListener('keydown', handleEscape);
             }
         };
@@ -79,6 +86,7 @@ export class ErrorHandler {
         alertDiv.addEventListener('click', (e) => {
             if (e.target === alertDiv) {
                 container.removeChild(alertDiv);
+                document.body.style.overflow = '';
                 document.removeEventListener('keydown', handleEscape);
             }
         });
