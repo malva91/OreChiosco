@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Libro Nero - Chiosco</title>
+    <link rel="stylesheet" href="style/02_components_1.css">
+    <link rel="stylesheet" href="style/02_components_2.css">
+    <link rel="stylesheet" href="style/03_layout_1.css">
+    <link rel="stylesheet" href="style/03_layout_2.css">
+    <link rel="stylesheet" href="style/07_libro_nero.css">
+    <link rel="stylesheet" href="style/05_mobile_optimization.css">
+</head>
+<body>
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏖️ Chiosco</h2>
+                <p id="user-info">Dipendente</p>
+            </div>
+            
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html">📊 Dashboard</a></li>
+                <li><a href="calendar.html">📅 Calendario</a></li>
+                <li><a href="libro-nero.html" class="active">📖 Libro Nero</a></li>
+                <li><a href="admin.html" id="admin-link" style="display: none;">⚙️ Admin</a></li>
+                <li><a href="#" id="logout-btn">🚪 Logout</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>📖 Libro Nero - Gestione Crediti</h1>
+            </header>
+            
+            <div class="libro-nero-container">
+                <!-- Sidebar Clienti -->
+                <aside class="clients-sidebar">
+                    <div class="clients-header">
+                        <h3>Clienti</h3>
+                        <form id="add-client-form" class="add-client-form">
+                            <input 
+                                type="text" 
+                                id="client-name" 
+                                placeholder="Nome cliente" 
+                                required
+                                autocomplete="off"
+                            >
+                            <button type="submit" class="btn btn-primary">Aggiungi</button>
+                        </form>
+                    </div>
+                    <div class="clients-list" id="clients-list">
+                        <div class="loading">Caricamento clienti...</div>
+                    </div>
+                </aside>
+
+                <!-- Main Content -->
+                <div class="client-content">
+                    <div id="no-client-selected" class="no-selection">
+                        <div class="no-selection-icon">👤</div>
+                        <h2>Seleziona un cliente</h2>
+                        <p>Scegli un cliente dalla lista per visualizzare il saldo e gestire le transazioni.</p>
+                    </div>
+
+                    <div id="client-details" class="client-details" style="display: none;">
+                        <div class="client-header">
+                            <div class="client-info">
+                                <h2 id="selected-client-name">Cliente</h2>
+                                <div class="balance-container">
+                                    <span class="balance-label">Saldo Attuale:</span>
+                                    <span id="client-balance" class="balance">€0.00</span>
+                                </div>
+                            </div>
+                            <div class="client-actions">
+                                <button id="delete-client-btn" class="btn btn-danger">🗑️ Elimina Cliente</button>
+                            </div>
+                        </div>
+
+                        <!-- Form Transazione -->
+                        <div class="transaction-form-container">
+                            <h3>💰 Nuova Transazione</h3>
+                            <form id="add-transaction-form" class="transaction-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="transaction-amount">Importo (€)</label>
+                                        <input 
+                                            type="number" 
+                                            id="transaction-amount" 
+                                            placeholder="+ credito, - spesa" 
+                                            step="0.01"
+                                            required
+                                        >
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="transaction-description">Descrizione (opzionale)</label>
+                                        <input 
+                                            type="text" 
+                                            id="transaction-description" 
+                                            placeholder="Es: Ricarica, Consumazione..."
+                                            maxlength="100"
+                                        >
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success">💾 Aggiungi Transazione</button>
+                            </form>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="quick-actions">
+                            <h4>⚡ Azioni Rapide</h4>
+                            <div class="quick-buttons">
+                                <button class="btn btn-secondary quick-amount-btn" data-amount="5">+5€</button>
+                                <button class="btn btn-secondary quick-amount-btn" data-amount="10">+10€</button>
+                                <button class="btn btn-secondary quick-amount-btn" data-amount="20">+20€</button>
+                                <button class="btn btn-warning quick-amount-btn" data-amount="-1.5">-1.5€</button>
+                                <button class="btn btn-warning quick-amount-btn" data-amount="-2">-2€</button>
+                                <button class="btn btn-warning quick-amount-btn" data-amount="-3">-3€</button>
+                            </div>
+                        </div>
+
+                        <!-- Storico Transazioni -->
+                        <div class="transactions-container">
+                            <div class="transactions-header">
+                                <h3>📋 Storico Transazioni</h3>
+                                <div class="transactions-actions">
+                                    <button id="clear-all-transactions" class="btn btn-danger">🗑️ Azzera Tutto</button>
+                                    <button id="export-transactions" class="btn btn-secondary">📊 Esporta</button>
+                                </div>
+                            </div>
+                            <div id="transactions-list" class="transactions-list">
+                                <div class="loading">Caricamento transazioni...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="confirm-title">Conferma</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Sei sicuro?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-ok-btn" class="btn btn-danger">Conferma</button>
+                <button class="btn btn-secondary modal-close">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <script type="module" src="js/libro-nero.js"></script>
+</body>
+</html>

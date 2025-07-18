@@ -181,6 +181,82 @@ class FirebaseAPI {
         }
     }
 
+    // Libro Nero methods
+    async getLibroNeroClients() {
+        try {
+            const clientsRef = collection(this.db, 'libro_nero_clients');
+            const snapshot = await getDocs(clientsRef);
+            const clients = {};
+            snapshot.forEach(doc => {
+                clients[doc.id] = doc.data();
+            });
+            return clients;
+        } catch (error) {
+            console.error('Error getting libro nero clients:', error);
+            throw error;
+        }
+    }
+
+    async createLibroNeroClient(clientData) {
+        try {
+            const clientsRef = collection(this.db, 'libro_nero_clients');
+            const docRef = await addDoc(clientsRef, clientData);
+            return docRef.id;
+        } catch (error) {
+            console.error('Error creating libro nero client:', error);
+            throw error;
+        }
+    }
+
+    async deleteLibroNeroClient(clientId) {
+        try {
+            const clientRef = doc(this.db, 'libro_nero_clients', clientId);
+            await deleteDoc(clientRef);
+            return true;
+        } catch (error) {
+            console.error('Error deleting libro nero client:', error);
+            throw error;
+        }
+    }
+
+    async getClientTransactions(clientId) {
+        try {
+            const transactionsRef = collection(this.db, 'libro_nero_clients', clientId, 'transactions');
+            const q = query(transactionsRef, orderBy('timestamp', 'desc'));
+            const snapshot = await getDocs(q);
+            const transactions = [];
+            snapshot.forEach(doc => {
+                transactions.push({ id: doc.id, ...doc.data() });
+            });
+            return transactions;
+        } catch (error) {
+            console.error('Error getting client transactions:', error);
+            throw error;
+        }
+    }
+
+    async addClientTransaction(clientId, transactionData) {
+        try {
+            const transactionsRef = collection(this.db, 'libro_nero_clients', clientId, 'transactions');
+            const docRef = await addDoc(transactionsRef, transactionData);
+            return docRef.id;
+        } catch (error) {
+            console.error('Error adding client transaction:', error);
+            throw error;
+        }
+    }
+
+    async deleteClientTransaction(clientId, transactionId) {
+        try {
+            const transactionRef = doc(this.db, 'libro_nero_clients', clientId, 'transactions', transactionId);
+            await deleteDoc(transactionRef);
+            return true;
+        } catch (error) {
+            console.error('Error deleting client transaction:', error);
+            throw error;
+        }
+    }
+
     // Authentication helper
     async validateCredentials(username, password) {
         try {
