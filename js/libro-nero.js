@@ -46,6 +46,25 @@ class LibroNeroManager {
             this.logout();
         });
 
+        // Show/hide add client form
+        document.getElementById('show-add-client').addEventListener('click', () => {
+            const form = document.getElementById('add-client-form-container');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            if (form.style.display === 'block') {
+                document.getElementById('client-name').focus();
+            }
+        });
+        
+        document.getElementById('cancel-add-client').addEventListener('click', () => {
+            document.getElementById('add-client-form-container').style.display = 'none';
+            document.getElementById('client-name').value = '';
+        });
+        
+        // Back to clients
+        document.getElementById('back-to-clients').addEventListener('click', () => {
+            this.showClientsList();
+        });
+
         // Add client form
         document.getElementById('add-client-form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -58,14 +77,21 @@ class LibroNeroManager {
             this.addTransaction();
         });
 
+        // Amount buttons
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const amount = parseFloat(e.target.dataset.amount);
+                document.getElementById('transaction-amount').value = amount;
+                
+                // Update button states
+                document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
+
         // Clear all transactions
         document.getElementById('clear-all-transactions').addEventListener('click', () => {
             this.clearAllTransactions();
-        });
-
-        // Export transactions
-        document.getElementById('export-transactions').addEventListener('click', () => {
-            this.exportTransactions();
         });
 
         // Delete client
@@ -109,6 +135,9 @@ class LibroNeroManager {
                 })
             );
             
+            // Update totals in header
+            this.updateTotals(clientsWithBalances);
+            
             await this.renderClients(clientsWithBalances);
         } catch (error) {
             console.error('Error loading clients:', error);
@@ -118,6 +147,23 @@ class LibroNeroManager {
         }
     }
 
+    updateTotals(clients) {
+        const totalClients = clients.length;
+        let totalCredits = 0;
+        let totalDebts = 0;
+        
+        clients.forEach(client => {
+            if (client.balance > 0) {
+                totalCredits += client.balance;
+            } else if (client.balance < 0) {
+                totalDebts += Math.abs(client.balance);
+            }
+        });
+        
+        document.getElementById('total-clients').textContent = totalClients;
+        document.getElementById('total-credits').textContent = `€${totalCredits.toFixed(2)}`;
+        document.getElementById('total-debts').textContent = `€${totalDebts.toFixed(2)}`;
+    }
 
     async calculateClientBalance(clientId) {
         try {
@@ -154,9 +200,8 @@ class LibroNeroManager {
         );
 
         clientsList.innerHTML = sortedClients.map(client => `
-            <div class="client-item ${client.id === this.selectedClientId ? 'active' : ''}" 
-                 data-client-id="${client.id}" onclick="libroNero.selectClient('${client.id}')">
-                <div class="client-name">${SecurityUtils.sanitizeHTML(client.name)}</div>
+            <div class="client-item" data-client-id="${client.id}" onclick="libroNero.selectClient('${client.id}')">
+                <h4 class="client-name">${SecurityUtils.sanitizeHTML(client.name)}</h4>
                 <div class="client-balance-preview ${client.balance > 0 ? 'positive' : client.balance < 0 ? 'negative' : ''}">
                     €${client.balance.toFixed(2)}
                 </div>
@@ -205,10 +250,8 @@ class LibroNeroManager {
             ErrorHandler.showSuccess('Cliente aggiunto con successo');
             await this.loadClients();
             
-            // On mobile, blur the input to hide keyboard
-            if (window.innerWidth <= 768) {
-                nameInput.blur();
-            }
+            // Hide form and clear input
+            document.getElementById('add-client-form-container').style.display = 'none';
             
         } catch (error) {
             console.error('Error adding client:', error);
@@ -221,40 +264,26 @@ class LibroNeroManager {
     async selectClient(clientId) {
         this.selectedClientId = clientId;
         
-        // Update UI
-        document.querySelectorAll('.client-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        const selectedItem = document.querySelector(`[data-client-id="${clientId}"]`);
-        if (selectedItem) {
-            selectedItem.classList.add('active');
-            // Scroll into view on mobile
-            if (window.innerWidth <= 768) {
-                selectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
+        // Show client details and hide clients list
+        this.showClientDetails();
         
-        // Show client details
-        await this.showClientDetails(clientId);
+        await this.loadClientData(clientId);
         await this.loadTransactions(clientId);
-        
-        // On mobile, scroll to client details after selection
-        if (window.innerWidth <= 768) {
-            setTimeout(() => {
-                const clientDetails = document.getElementById('client-details');
-                if (clientDetails) {
-                    clientDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }, 300);
-        }
     }
 
-    async showClientDetails(clientId) {
-        const noSelection = document.getElementById('no-client-selected');
+    showClientDetails() {
+        document.querySelector('.clients-section').style.display = 'none';
+        document.getElementById('client-details').style.display = 'block';
+    }
+    
+    showClientsList() {
+        document.querySelector('.clients-section').style.display = 'block';
+        document.getElementById('client-details').style.display = 'none';
+        this.selectedClientId = null;
+    }
+
+    async loadClientData(clientId) {
         const clientDetails = document.getElementById('client-details');
-        
-        noSelection.style.display = 'none';
-        clientDetails.style.display = 'flex';
         
         try {
             const client = await FirebaseAPI.getLibroNeroClient(clientId);
@@ -313,27 +342,21 @@ class LibroNeroManager {
             
             return `
                 <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-info">
-                            <div class="transaction-amount ${amount >= 0 ? 'positive' : 'negative'}">
-                                ${amount >= 0 ? '+' : ''}€${amount.toFixed(2)}
-                            </div>
-                            ${transaction.description ? `<div class="transaction-description">${SecurityUtils.sanitizeHTML(transaction.description)}</div>` : ''}
+                    <div class="transaction-info">
+                        <div class="transaction-amount ${amount >= 0 ? 'positive' : 'negative'}">
+                            ${amount >= 0 ? '+' : ''}€${amount.toFixed(2)}
                         </div>
-                        <div class="transaction-meta">
-                            <div class="transaction-date">
-                                ${date.toLocaleDateString('it-IT')} ${date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                            </div>
-                            <div class="transaction-user">
-                                ${SecurityUtils.sanitizeHTML(transaction.addedBy || 'Sconosciuto')}
-                            </div>
+                        ${transaction.description ? `<div class="transaction-description">${SecurityUtils.sanitizeHTML(transaction.description)}</div>` : ''}
+                        <div class="transaction-date">
+                            ${date.toLocaleDateString('it-IT')} ${date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                        <div class="transaction-user">
+                            ${SecurityUtils.sanitizeHTML(transaction.addedBy || 'Sconosciuto')}
                         </div>
                     </div>
-                    <div class="transaction-actions">
-                        <button class="delete-transaction" onclick="libroNero.deleteTransaction('${clientId}', '${transaction.id}')">
-                            🗑️
-                        </button>
-                    </div>
+                    <button class="delete-transaction" onclick="libroNero.deleteTransaction('${clientId}', '${transaction.id}')">
+                        🗑️
+                    </button>
                 </div>
             `;
         }).join('');
@@ -384,11 +407,8 @@ class LibroNeroManager {
             document.getElementById('transaction-amount').value = '';
             document.getElementById('transaction-description').value = '';
             
-            // On mobile, blur inputs to hide keyboard
-            if (window.innerWidth <= 768) {
-                document.getElementById('transaction-amount').blur();
-                document.getElementById('transaction-description').blur();
-            }
+            // Clear active amount button
+            document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('active'));
             
             ErrorHandler.showSuccess('Transazione aggiunta con successo');
             
@@ -485,9 +505,7 @@ class LibroNeroManager {
                     ErrorHandler.showSuccess('Cliente eliminato con successo');
                     
                     // Reset UI
-                    this.selectedClientId = null;
-                    document.getElementById('no-client-selected').style.display = 'flex';
-                    document.getElementById('client-details').style.display = 'none';
+                    this.showClientsList();
                     
                     // Reload clients
                     await this.loadClients();
@@ -500,55 +518,6 @@ class LibroNeroManager {
                 }
             }
         );
-    }
-
-    async exportTransactions() {
-        if (!this.selectedClientId) {
-            ErrorHandler.showError('Seleziona prima un cliente');
-            return;
-        }
-
-        try {
-            const clientName = document.getElementById('selected-client-name').textContent;
-            const transactions = await FirebaseAPI.getClientTransactions(this.selectedClientId);
-            
-            if (transactions.length === 0) {
-                ErrorHandler.showError('Nessuna transazione da esportare');
-                return;
-            }
-
-            // Create CSV content
-            let csvContent = `Transazioni - ${clientName}\n`;
-            csvContent += `Esportato il: ${new Date().toLocaleDateString('it-IT')}\n\n`;
-            csvContent += 'Data,Ora,Importo,Descrizione,Inserito da\n';
-            
-            transactions.forEach(transaction => {
-                const date = transaction.timestamp && transaction.timestamp.toDate ? 
-                    transaction.timestamp.toDate() : new Date(transaction.timestamp);
-                const amount = transaction.amount || 0;
-                const description = transaction.description || '';
-                const addedBy = transaction.addedBy || 'Sconosciuto';
-                
-                csvContent += `${date.toLocaleDateString('it-IT')},${date.toLocaleTimeString('it-IT')},€${amount.toFixed(2)},"${description}","${addedBy}"\n`;
-            });
-            
-            // Download CSV
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `transazioni_${clientName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            ErrorHandler.showSuccess('Transazioni esportate con successo');
-            
-        } catch (error) {
-            console.error('Error exporting transactions:', error);
-            ErrorHandler.showError('Errore nell\'esportazione delle transazioni');
-        }
     }
 
     showConfirmModal(title, message, onConfirm) {
