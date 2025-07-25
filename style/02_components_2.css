@@ -775,3 +775,682 @@
         font-size: 0.85rem;
     }
 }
+
+/* Modern Hours Management Styles */
+.hours-management-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.employee-selector-card,
+.date-selector-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+}
+
+.employee-selector-card:hover,
+.date-selector-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.employee-selector-card h4,
+.date-selector-card h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.employee-select-modern {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.employee-select-modern:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.date-navigation-modern {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn-nav {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.btn-nav:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.current-date-display {
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 200px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.hours-form-modern {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.special-day-options {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+
+.special-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--input-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.special-option:hover {
+    border-color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.special-option input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+}
+
+.option-icon {
+    font-size: 1.25rem;
+}
+
+.option-text {
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.shifts-section {
+    margin-bottom: 2rem;
+}
+
+.shifts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.shifts-header h4 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-add-shift {
+    background: var(--success-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-add-shift:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.shift-form-modern {
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+}
+
+.shift-form-modern:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shift-header-modern {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.shift-number {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.btn-remove-shift {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-remove-shift:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.time-inputs-modern {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group-modern {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group-modern label {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.time-input-modern,
+.select-modern {
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.time-input-modern:focus,
+.select-modern:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-actions-modern {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn-save-modern,
+.btn-reset-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 150px;
+    justify-content: center;
+}
+
+.btn-save-modern {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-save-modern:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-reset-modern {
+    background: var(--warning-color);
+    color: white;
+}
+
+.btn-reset-modern:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-icon {
+    font-size: 1.1rem;
+}
+
+/* Calendar Section Modern */
+.calendar-section-modern {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header-modern {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.calendar-header-modern h4 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.week-navigation-modern {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.calendar-legend-modern {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.legend-item-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.legend-color-modern {
+    width: 20px;
+    height: 20px;
+    border-radius: 0.25rem;
+}
+
+.legend-color-modern.admin-shift {
+    background: var(--primary-color);
+}
+
+.legend-color-modern.employee-hours {
+    background: var(--primary-color);
+    opacity: 0.7;
+    border: 2px dashed rgba(255, 255, 255, 0.5);
+}
+
+.legend-color-modern.festa-cell {
+    background: #ffe066;
+}
+
+/* Mini Calendar Modern */
+.mini-calendar-modern {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: var(--card-bg);
+}
+
+.calendar-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: var(--secondary-color);
+}
+
+.day-header-modern {
+    padding: 1rem 0.5rem;
+    text-align: center;
+    color: white;
+    border-right: 1px solid var(--border-color);
+}
+
+.day-header-modern:last-child {
+    border-right: none;
+}
+
+.day-header-modern.today {
+    background: var(--warning-color);
+    color: var(--body-bg);
+}
+
+.day-name-modern {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.day-date-modern {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.calendar-shifts-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    min-height: 200px;
+}
+
+.day-shifts-container {
+    padding: 1rem 0.5rem;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 120px;
+}
+
+.day-shifts-container:nth-child(7n) {
+    border-right: none;
+}
+
+.shift-block {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.8rem;
+}
+
+.shift-block:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.shift-time {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.shift-duration {
+    font-size: 0.7rem;
+    opacity: 0.9;
+}
+
+.no-shifts {
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: 1rem 0;
+    font-size: 0.85rem;
+}
+
+.rest-day-block,
+.festa-day-block {
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.rest-day-block {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--warning-color);
+    border: 1px solid var(--warning-color);
+}
+
+.festa-day-block {
+    background: #ffe066;
+    color: #000;
+    border: 1px solid #ffd700;
+}
+
+/* Modal Modern */
+.modal-modern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content-modern {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header-modern {
+    padding: 2rem 2rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header-modern h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+}
+
+.modal-close-modern {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.modal-close-modern:hover {
+    background: var(--danger-color);
+    color: white;
+}
+
+.modal-body-modern {
+    padding: 2rem;
+}
+
+.shift-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.modal-footer-modern {
+    padding: 1rem 2rem 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-save-modal,
+.btn-delete-modal,
+.btn-cancel-modal {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-save-modal {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-save-modal:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.btn-delete-modal {
+    background: var(--danger-color);
+    color: white;
+}
+
+.btn-delete-modal:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+.btn-cancel-modal {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.btn-cancel-modal:hover {
+    background: #475569;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hours-management-header {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .special-day-options {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .time-inputs-modern {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .form-actions-modern {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .calendar-header-modern {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .calendar-legend-modern {
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .calendar-shifts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .day-shifts-container {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        min-height: 80px;
+    }
+    
+    .modal-content-modern {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .modal-header-modern,
+    .modal-body-modern {
+        padding: 1.5rem;
+    }
+    
+    .modal-footer-modern {
+        padding: 1rem 1.5rem 1.5rem;
+        flex-direction: column;
+    }
+}

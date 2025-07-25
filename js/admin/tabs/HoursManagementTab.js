@@ -38,47 +38,98 @@ export class HoursManagementTab extends BaseTab {
             </div>
             
             <div class="hours-management">
-                <div class="employee-selector">
-                    <label for="employee-select">Seleziona Dipendente:</label>
-                    <select id="employee-select">
-                        <option value="">Seleziona...</option>
-                        ${this.employees.map(emp => `<option value="${emp}">${emp}</option>`).join('')}
-                    </select>
+                <div class="hours-management-header">
+                    <div class="employee-selector-card">
+                        <h4>👤 Seleziona Dipendente</h4>
+                        <select id="employee-select" class="employee-select-modern">
+                            <option value="">Seleziona dipendente...</option>
+                            ${this.employees.map((emp, index) => `
+                                <option value="${emp}" class="emp-option-${(index % 15) + 1}">${emp}</option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="date-selector-card">
+                        <h4>📅 Data Selezionata</h4>
+                        <div class="date-navigation-modern">
+                            <button id="prev-hours-date" class="btn-nav">◀</button>
+                            <span id="hours-current-date" class="current-date-display">${DateUtils.formatDisplayDate(this.currentDate)}</span>
+                            <button id="next-hours-date" class="btn-nav">▶</button>
+                        </div>
+                    </div>
                 </div>
                 
                 <div id="employee-hours-section" style="display: none;">
-                    <div class="date-navigation">
-                        <button id="prev-hours-date" class="btn btn-secondary">◀</button>
-                        <span id="hours-current-date">${DateUtils.formatDisplayDate(this.currentDate)}</span>
-                        <button id="next-hours-date" class="btn btn-secondary">▶</button>
-                    </div>
-                    
-                    <div class="hours-form">
+                    <div class="hours-form-modern">
                         <div class="form-status" id="form-status">
                             <div class="status-indicator" id="status-indicator">
                                 <span class="status-text" id="status-text">Nessun dato</span>
                             </div>
                         </div>
                         
-                        <div class="checkbox-group">
-                            <label>
+                        <div class="special-day-options">
+                            <label class="special-option">
                                 <input type="checkbox" id="admin-rest-day">
-                                <span>Giorno di riposo</span>
+                                <span class="option-icon">😴</span>
+                                <span class="option-text">Giorno di riposo</span>
                             </label>
-                            <label>
+                            <label class="special-option">
                                 <input type="checkbox" id="admin-festa">
-                                <span>Festa</span>
+                                <span class="option-icon">🎉</span>
+                                <span class="option-text">Festa</span>
                             </label>
                         </div>
                         
-                        <div id="admin-shifts-container">
-                            <!-- Shifts will be added here -->
+                        <div class="shifts-section">
+                            <div class="shifts-header">
+                                <h4>⏰ Turni di Lavoro</h4>
+                                <button id="add-admin-shift-btn" class="btn-add-shift">+ Aggiungi Turno</button>
+                            </div>
+                            <div id="admin-shifts-container">
+                                <!-- Shifts will be added here -->
+                            </div>
                         </div>
                         
-                        <div class="form-actions">
-                            <button id="save-employee-hours-btn" class="btn btn-success">💾 Salva Modifiche</button>
-                            <button id="add-admin-shift-btn" class="btn btn-primary">+ Aggiungi Turno</button>
-                            <button id="reset-employee-hours-btn" class="btn btn-warning">🔄 Ripristina Originale</button>
+                        <div class="form-actions-modern">
+                            <button id="save-employee-hours-btn" class="btn-save-modern">
+                                <span class="btn-icon">💾</span>
+                                <span>Salva Modifiche</span>
+                            </button>
+                            <button id="reset-employee-hours-btn" class="btn-reset-modern">
+                                <span class="btn-icon">🔄</span>
+                                <span>Ripristina</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Calendar Section -->
+                    <div class="calendar-section-modern">
+                        <div class="calendar-header-modern">
+                            <h4>📊 Calendario Settimanale</h4>
+                            <div class="week-navigation-modern">
+                                <button id="prev-week-hours" class="btn-nav">◀ Settimana</button>
+                                <span id="current-week-hours">${this.getWeekDisplayText()}</span>
+                                <button id="next-week-hours" class="btn-nav">Settimana ▶</button>
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-legend-modern">
+                            <div class="legend-item-modern">
+                                <div class="legend-color-modern admin-shift"></div>
+                                <span>Turni Admin</span>
+                            </div>
+                            <div class="legend-item-modern">
+                                <div class="legend-color-modern employee-hours"></div>
+                                <span>Ore Dipendenti 👤</span>
+                            </div>
+                            <div class="legend-item-modern">
+                                <div class="legend-color-modern festa-cell"></div>
+                                <span>Festa 🎉</span>
+                            </div>
+                        </div>
+                        
+                        <div id="hours-calendar-container">
+                            <!-- Shifts will be added here -->
                         </div>
                     </div>
                     
@@ -88,6 +139,46 @@ export class HoursManagementTab extends BaseTab {
                         <div class="total-hours">
                             <strong>Totale Mese: <span id="admin-total-hours">0h 0m</span></strong>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shift Edit Modal -->
+            <div id="shift-edit-modal" class="modal-modern" style="display: none;">
+                <div class="modal-content-modern">
+                    <div class="modal-header-modern">
+                        <h3 id="shift-modal-title">Modifica Turno</h3>
+                        <button class="modal-close-modern">&times;</button>
+                    </div>
+                    <div class="modal-body-modern">
+                        <div class="shift-edit-form">
+                            <div class="form-group-modern">
+                                <label>⏰ Orario Inizio</label>
+                                <input type="time" id="edit-shift-start" class="time-input-modern" min="06:00" max="21:30">
+                            </div>
+                            <div class="form-group-modern">
+                                <label>⏰ Orario Fine</label>
+                                <input type="time" id="edit-shift-end" class="time-input-modern" min="06:00" max="21:30">
+                            </div>
+                            <div class="form-group-modern">
+                                <label>🏷️ Tipo Turno</label>
+                                <select id="edit-shift-type" class="select-modern">
+                                    <option value="default">Normale</option>
+                                    <option value="festa">Festa</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer-modern">
+                        <button id="save-shift-edit-btn" class="btn-save-modal">
+                            <span class="btn-icon">💾</span>
+                            <span>Salva</span>
+                        </button>
+                        <button id="delete-shift-btn" class="btn-delete-modal">
+                            <span class="btn-icon">🗑️</span>
+                            <span>Elimina</span>
+                        </button>
+                        <button class="btn-cancel-modal modal-close-modern">Annulla</button>
                     </div>
                 </div>
             </div>
@@ -118,7 +209,19 @@ export class HoursManagementTab extends BaseTab {
             this.updateDateDisplay();
             this.loadEmployeeHours();
         });
+        
+        // Week navigation
+        document.getElementById('prev-week-hours').addEventListener('click', () => {
+            this.currentWeekStart = DateUtils.addDays(this.currentWeekStart, -7);
+            this.updateWeekDisplay();
+            this.loadWeekData();
+        });
 
+        document.getElementById('next-week-hours').addEventListener('click', () => {
+            this.currentWeekStart = DateUtils.addDays(this.currentWeekStart, 7);
+            this.updateWeekDisplay();
+            this.loadWeekData();
+        });
         // Rest day checkbox
         document.getElementById('admin-rest-day').addEventListener('change', (e) => {
             const shiftsContainer = document.getElementById('admin-shifts-container');
@@ -167,6 +270,37 @@ export class HoursManagementTab extends BaseTab {
         document.getElementById('reset-employee-hours-btn').addEventListener('click', () => {
             this.resetEmployeeHours();
         });
+        
+        // Modal event listeners
+        this.setupModalEventListeners();
+    }
+    
+    setupModalEventListeners() {
+        const modal = document.getElementById('shift-edit-modal');
+        const closeButtons = modal.querySelectorAll('.modal-close-modern');
+        
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.hideShiftEditModal();
+            });
+        });
+        
+        // Save shift edit
+        document.getElementById('save-shift-edit-btn').addEventListener('click', () => {
+            this.saveShiftEdit();
+        });
+        
+        // Delete shift
+        document.getElementById('delete-shift-btn').addEventListener('click', () => {
+            this.deleteShift();
+        });
+        
+        // Close on outside click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.hideShiftEditModal();
+            }
+        });
     }
 
     showEmployeeSection() {
@@ -178,6 +312,7 @@ export class HoursManagementTab extends BaseTab {
         }
         this.shifts = [{ entry: '', exit: '' }];
         this.renderAdminShifts();
+        this.loadWeekData();
     }
 
     hideEmployeeSection() {
@@ -186,6 +321,255 @@ export class HoursManagementTab extends BaseTab {
 
     updateDateDisplay() {
         document.getElementById('hours-current-date').textContent = DateUtils.formatDisplayDate(this.currentDate);
+    }
+    
+    updateWeekDisplay() {
+        document.getElementById('current-week-hours').textContent = this.getWeekDisplayText();
+    }
+    
+    getWeekDisplayText() {
+        if (!this.currentWeekStart) {
+            this.currentWeekStart = DateUtils.getMonday(this.currentDate);
+        }
+        const weekEnd = DateUtils.addDays(this.currentWeekStart, 6);
+        return `${DateUtils.formatShortDate(this.currentWeekStart)} - ${DateUtils.formatShortDate(weekEnd)}`;
+    }
+    
+    async loadWeekData() {
+        if (!this.selectedEmployee) return;
+        
+        try {
+            if (!this.currentWeekStart) {
+                this.currentWeekStart = DateUtils.getMonday(this.currentDate);
+            }
+            
+            const weekDates = DateUtils.getWeekDates(this.currentWeekStart);
+            const startDate = DateUtils.formatDate(weekDates[0]);
+            const endDate = DateUtils.formatDate(weekDates[6]);
+            
+            // Load employee hours for the week
+            const employeeHours = await FirebaseAPI.getEmployeeHours(this.selectedEmployee);
+            
+            // Render calendar
+            this.renderHoursCalendar(weekDates, employeeHours);
+            
+        } catch (error) {
+            console.error('Error loading week data:', error);
+            this.showError('Errore nel caricamento dati settimanali');
+        }
+    }
+    
+    renderHoursCalendar(weekDates, employeeHours) {
+        const container = document.getElementById('hours-calendar-container');
+        
+        const calendarHtml = `
+            <div class="mini-calendar-modern">
+                <div class="calendar-days-header">
+                    ${weekDates.map(date => {
+                        const dayName = DateUtils.getDayName(date);
+                        const dayDate = DateUtils.formatShortDate(date);
+                        const isToday = DateUtils.isToday(date);
+                        return `
+                            <div class="day-header-modern ${isToday ? 'today' : ''}">
+                                <div class="day-name-modern">${dayName}</div>
+                                <div class="day-date-modern">${dayDate}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                
+                <div class="calendar-shifts-grid">
+                    ${weekDates.map(date => {
+                        const dateStr = DateUtils.formatDate(date);
+                        const dayData = employeeHours[dateStr];
+                        return this.renderDayShifts(dateStr, dayData);
+                    }).join('')}
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = calendarHtml;
+        
+        // Add click listeners to shifts
+        container.querySelectorAll('.shift-block').forEach(block => {
+            block.addEventListener('click', (e) => {
+                const dateStr = e.target.dataset.date;
+                const shiftIndex = parseInt(e.target.dataset.shiftIndex);
+                this.openShiftEditModal(dateStr, shiftIndex);
+            });
+        });
+    }
+    
+    renderDayShifts(dateStr, dayData) {
+        if (!dayData) {
+            return `
+                <div class="day-shifts-container">
+                    <div class="no-shifts">Nessun dato</div>
+                </div>
+            `;
+        }
+        
+        if (dayData.rest_day) {
+            return `
+                <div class="day-shifts-container">
+                    <div class="rest-day-block">😴 Riposo</div>
+                </div>
+            `;
+        }
+        
+        if (dayData.festa) {
+            return `
+                <div class="day-shifts-container">
+                    <div class="festa-day-block">🎉 Festa</div>
+                </div>
+            `;
+        }
+        
+        const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
+        const shifts = [];
+        
+        shiftNames.forEach((shiftName, index) => {
+            if (dayData[shiftName]) {
+                const shift = dayData[shiftName];
+                shifts.push({
+                    index,
+                    start: shift.entry,
+                    end: shift.exit
+                });
+            }
+        });
+        
+        if (shifts.length === 0) {
+            return `
+                <div class="day-shifts-container">
+                    <div class="no-shifts">Nessun turno</div>
+                </div>
+            `;
+        }
+        
+        return `
+            <div class="day-shifts-container">
+                ${shifts.map(shift => `
+                    <div class="shift-block" data-date="${dateStr}" data-shift-index="${shift.index}">
+                        <div class="shift-time">${shift.start} - ${shift.end}</div>
+                        <div class="shift-duration">${TimeUtils.formatDuration(TimeUtils.calculateDuration(shift.start, shift.end))}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    openShiftEditModal(dateStr, shiftIndex) {
+        this.editingShift = { dateStr, shiftIndex };
+        
+        const dayData = this.hoursData[dateStr];
+        const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
+        const shiftData = dayData[shiftNames[shiftIndex]];
+        
+        // Populate modal
+        document.getElementById('edit-shift-start').value = shiftData.entry || '';
+        document.getElementById('edit-shift-end').value = shiftData.exit || '';
+        document.getElementById('edit-shift-type').value = 'default';
+        
+        // Show modal
+        document.getElementById('shift-edit-modal').style.display = 'flex';
+    }
+    
+    hideShiftEditModal() {
+        document.getElementById('shift-edit-modal').style.display = 'none';
+        this.editingShift = null;
+    }
+    
+    async saveShiftEdit() {
+        if (!this.editingShift) return;
+        
+        const startTime = document.getElementById('edit-shift-start').value;
+        const endTime = document.getElementById('edit-shift-end').value;
+        const shiftType = document.getElementById('edit-shift-type').value;
+        
+        if (!startTime || !endTime) {
+            this.showError('Inserire orario di inizio e fine');
+            return;
+        }
+        
+        if (TimeUtils.timeToMinutes(endTime) <= TimeUtils.timeToMinutes(startTime)) {
+            this.showError('L\'orario di fine deve essere successivo all\'orario di inizio');
+            return;
+        }
+        
+        this.showLoading(true);
+        
+        try {
+            const { dateStr, shiftIndex } = this.editingShift;
+            const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
+            
+            // Update the shift data
+            if (!this.hoursData[dateStr]) {
+                this.hoursData[dateStr] = {};
+            }
+            
+            this.hoursData[dateStr][shiftNames[shiftIndex]] = {
+                entry: startTime,
+                exit: endTime
+            };
+            
+            this.hoursData[dateStr].modified_by_admin = true;
+            this.hoursData[dateStr].modified_at = new Date().toISOString();
+            
+            await FirebaseAPI.saveEmployeeHours(this.selectedEmployee, dateStr, this.hoursData[dateStr]);
+            
+            this.showSuccess('Turno modificato con successo');
+            this.hideShiftEditModal();
+            
+            // Reload data
+            await this.loadEmployeeHours();
+            await this.loadWeekData();
+            
+        } catch (error) {
+            console.error('Error saving shift edit:', error);
+            this.showError('Errore nel salvataggio del turno');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+    
+    async deleteShift() {
+        if (!this.editingShift) return;
+        
+        this.showCustomConfirm(
+            'Sei sicuro di voler eliminare questo turno?',
+            async () => {
+                this.showLoading(true);
+                
+                try {
+                    const { dateStr, shiftIndex } = this.editingShift;
+                    const shiftNames = ['first_shift', 'second_shift', 'third_shift'];
+                    
+                    // Remove the shift
+                    if (this.hoursData[dateStr]) {
+                        delete this.hoursData[dateStr][shiftNames[shiftIndex]];
+                        this.hoursData[dateStr].modified_by_admin = true;
+                        this.hoursData[dateStr].modified_at = new Date().toISOString();
+                        
+                        await FirebaseAPI.saveEmployeeHours(this.selectedEmployee, dateStr, this.hoursData[dateStr]);
+                    }
+                    
+                    this.showSuccess('Turno eliminato con successo');
+                    this.hideShiftEditModal();
+                    
+                    // Reload data
+                    await this.loadEmployeeHours();
+                    await this.loadWeekData();
+                    
+                } catch (error) {
+                    console.error('Error deleting shift:', error);
+                    this.showError('Errore nell\'eliminazione del turno');
+                } finally {
+                    this.showLoading(false);
+                }
+            },
+            'danger'
+        );
     }
 
     async loadEmployeeHours() {
@@ -300,20 +684,20 @@ export class HoursManagementTab extends BaseTab {
 
         this.shifts.forEach((shift, index) => {
             const shiftDiv = document.createElement('div');
-            shiftDiv.className = 'shift-form';
+            shiftDiv.className = 'shift-form-modern';
             shiftDiv.innerHTML = `
-                <div class="shift-header">
-                    <h5>Turno ${index + 1}</h5>
-                    ${this.shifts.length > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-admin-shift-btn" data-index="${index}">Rimuovi</button>` : ''}
+                <div class="shift-header-modern">
+                    <div class="shift-number">Turno ${index + 1}</div>
+                    ${this.shifts.length > 1 ? `<button type="button" class="btn-remove-shift" data-index="${index}">🗑️</button>` : ''}
                 </div>
-                <div class="time-inputs">
-                    <div class="form-group">
-                        <label>Entrata</label>
-                        <input type="time" class="admin-entry-time" data-index="${index}" value="${shift.entry}" min="06:00" max="21:30">
+                <div class="time-inputs-modern">
+                    <div class="form-group-modern">
+                        <label>⏰ Entrata</label>
+                        <input type="time" class="admin-entry-time time-input-modern" data-index="${index}" value="${shift.entry}" min="06:00" max="21:30">
                     </div>
-                    <div class="form-group">
-                        <label>Uscita</label>
-                        <input type="time" class="admin-exit-time" data-index="${index}" value="${shift.exit}" min="06:00" max="21:30">
+                    <div class="form-group-modern">
+                        <label>⏰ Uscita</label>
+                        <input type="time" class="admin-exit-time time-input-modern" data-index="${index}" value="${shift.exit}" min="06:00" max="21:30">
                     </div>
                 </div>
             `;
@@ -334,7 +718,7 @@ export class HoursManagementTab extends BaseTab {
             });
         });
 
-        container.querySelectorAll('.remove-admin-shift-btn').forEach(btn => {
+        container.querySelectorAll('.btn-remove-shift').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const index = parseInt(e.target.dataset.index);
                 this.removeAdminShift(index);
